@@ -204,8 +204,8 @@ class MiniWindow(QtGui.QWidget):
         self.parent = parent
         icon = join(config.ASSETS_DIR, 'droptopus.png')
         self.pixmap = QtGui.QPixmap(icon)
-        self.icon_width = 48
-        self.icon_height = 48
+        self.icon_width = 107
+        self.icon_height = 150
         self.setFixedWidth(self.icon_width)
         self.setFixedHeight(self.icon_height)
         self.setAcceptDrops(True)
