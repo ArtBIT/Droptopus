@@ -1,7 +1,7 @@
 ![Droptopus Logo](/assets/droptopus.png)
 
 # Droptopus
-Droptopus is a drag'n'drop target, which routes dropped objects to the designated actions.
+Droptopus is a drag'n'drop receiver, which routes dropped objects to the designated actions.
 
 ## Dependencies
  - PyQt4
