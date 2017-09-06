@@ -222,31 +222,28 @@ class AboutDialog(DarkDialog):
     def __init__(self, parent = None):
         super(AboutDialog, self).__init__(parent)
 
-        layout = QtGui.QVBoxLayout(self)
+        main_layout = QtGui.QVBoxLayout(self)
         margin = 20
-        layout.setContentsMargins(margin, margin, margin, margin)
+        main_layout.setContentsMargins(margin, margin, margin, margin)
 
+        layout = QtGui.QHBoxLayout()
         # add icon
-        header = QtGui.QHBoxLayout()
         icon = join(config.ASSETS_DIR, 'droptopus.png')
         label = QtGui.QLabel()
-        label.setPixmap(QtGui.QPixmap(icon).scaled(50, 50, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
-        header.addWidget(label)
-        title = QtGui.QVBoxLayout()
-        # add text
+        label.setPixmap(QtGui.QPixmap(icon).scaled(150, 150, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+        layout.addWidget(label)
+
+        info_layout = QtGui.QVBoxLayout()
+        # add title
         label = QtGui.QLabel()
         label.setObjectName('title')
         label.setText('Droptopus')
-        title.addWidget(label)
+        info_layout.addWidget(label)
         label = QtGui.QLabel()
         label.setText('v'+__version__.__version__)
-        title.addWidget(label)
-        title.addStretch()
-        header.addLayout(title)
-        header.addStretch()
-        layout.addLayout(header)
-
-        # Actual contents
+        info_layout.addWidget(label)
+        info_layout.addStretch()
+        # about text
         self.label = QtGui.QLabel(self)
         self.label.setOpenExternalLinks(True)
         self.label.setText("""
@@ -255,7 +252,12 @@ class AboutDialog(DarkDialog):
             <div><strong>Icons:</strong> <a href="http://icons8.com/license" style="color:white">Icons8</a></div>
             <br>
         """);
-        layout.addWidget(self.label)
+        info_layout.addWidget(self.label)
+        info_layout.addStretch()
+        layout.addLayout(info_layout)
+        layout.addStretch()
+
+        main_layout.addLayout(layout)
 
         # OK and Cancel buttons
         buttons = QtGui.QDialogButtonBox(
@@ -263,7 +265,7 @@ class AboutDialog(DarkDialog):
             QtCore.Qt.Horizontal, self)
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
-        layout.addWidget(buttons)
+        main_layout.addWidget(buttons)
         self.resize(300,200)
 
 class MainWindow(QtGui.QMainWindow):

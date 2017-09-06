@@ -1,8 +1,17 @@
 # Droptopus
-Droptopus is a drag'n'drop router, which routes dropped objects to the designated actions
+Droptopus is a drag'n'drop target, which routes dropped objects to the designated actions.
 
+## Dependencies
+ - PyQt4
+ - Python Magic 
+ `sudo apt-get install python-pyqt4 python-magic`
 
-## To install virtualenv requirements run the following line
-```lang=bash
-virtualenv --no-site-packages .env && source .env/bin/activate && pip install -r env.requirements.txt
-```
+## Installation
+
+ # Clone the repo:
+ `git clone https://github.com/ArtBIT/Droptopus`
+ # Run it:
+ `cd Droptopus && ./start.sh`
+
+## Credits
+This project uses awesome icons from [http://icons8.com](Icons8)

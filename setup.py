@@ -21,9 +21,9 @@ from setuptools import find_packages, setup, Command
 NAME = 'droptopus'
 DESCRIPTION = 'Drag and drop router, that routes dropped object to predefined actions'
 URL = 'https://github.com/artbit/Droptopus'
-EMAIL = 'me@djordjeungar.com'
+EMAIL = 'djordje.ungar@gmail.com'
 AUTHOR = 'Djordje Ungar'
-REQUIRED = []
+REQUIRED = ['pyqt4']
 
 # The rest you shouldn't have to touch too much :)
 # ------------------------------------------------
