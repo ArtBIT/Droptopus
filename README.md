@@ -10,9 +10,9 @@ Droptopus is a drag'n'drop receiver, which routes dropped objects to the designa
 
 ## Installation
 
- # Clone the repo:
+ - Clone the repo:
  `git clone https://github.com/ArtBIT/Droptopus`
- # Run it:
+ - Run it:
  `cd Droptopus && ./start.sh`
 
 ## Credits
