@@ -42,6 +42,10 @@ class App(QApplication):
         color:white;
         Background: transparent;
     }
+    QMessageBox QLabel,
+    QInputDialog QLabel {
+        color: #333;
+    }
     AboutDialog,
     DropTitleBar,
     DropFrame {
@@ -65,6 +69,9 @@ class App(QApplication):
         font-weight: bold;
     }
     AboutDialog QWidget {
+    }
+    DropWidget[draggedOver=True] {
+        Background: rgba(0,0,0,70%);
     }
     """
     self.setStyleSheet(css) 

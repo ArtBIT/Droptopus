@@ -16,8 +16,7 @@ import config
 import __version__
 
 from PyQt4 import QtGui, QtCore 
-from droptopus.widgets import IconWidget, DirTarget, ScriptTarget
-
+from droptopus.widgets import IconWidget, DirTarget, FileTarget, CreateFileTarget, CreateDirTarget, EVENT_RELOAD_WIDGETS
 
 # Remove all items from the layout
 def clearLayout(layout):
@@ -84,12 +83,32 @@ class DropTitleBar(QtGui.QDialog):
 class DropTargetGrid(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        layout = QtGui.QGridLayout()
-        self.setLayout(layout)
+        self.init_layout()
         self.reload()
 
+    def init_layout(self):
+        layout = QtGui.QHBoxLayout(self)
+        sidebar_layout = QtGui.QVBoxLayout()
+        sidebar_layout.addWidget(self.instantiateWidget({"type":"create_dir", "name": "New Target Directory", "path": "", "icon": join(config.ASSETS_DIR, 'add_folder.png')}))
+        sidebar_layout.addWidget(self.instantiateWidget({"type":"create_file", "name": "New Target Action", "path": "", "icon": join(config.ASSETS_DIR, 'add_file.png')}))
+        sidebar_layout.addStretch()
+        layout.addLayout(sidebar_layout)
+        vline = QtGui.QFrame()
+        vline.setFrameShape(QtGui.QFrame.VLine)
+        vline.setFrameShadow(QtGui.QFrame.Plain)
+        layout.addWidget(vline)
+        self.grid_layout = QtGui.QGridLayout()
+        layout.addLayout(self.grid_layout)
+
+    def event(self, evt):
+        if evt.type() == EVENT_RELOAD_WIDGETS:
+            evt.accept()
+            self.reload()
+        return super(DropTargetGrid, self).event(evt)
+
     def reload(self):
-        clearLayout(self.layout())
+        layout = self.grid_layout;
+        clearLayout(layout)
         items = []
         # Create the config folder if it doesn't exist
         mypath = join(expanduser("~"),".droptopus")
@@ -118,22 +137,27 @@ class DropTargetGrid(QtGui.QWidget):
         root = math.sqrt(total_items)
         rows = int(root)
         cols = int(total_items/rows) + 1
-        m = sys.modules[__name__] # current module
-        widget_classes = {"dir": getattr(m, 'DirTarget'), "file": getattr(m, 'ScriptTarget')}
 
         item_idx = 0
-        layout = self.layout()
         for j in range(rows):
             for i in range(cols):
                 if item_idx >= total_items:
                     break
-                widget_info = items[item_idx]
-                widget_class = widget_classes[widget_info['type']]
-                widget = widget_class(self, widget_info['name'], widget_info['path'], widget_info['icon'])
-                layout.addWidget(widget, j, i)
+                layout.addWidget(self.instantiateWidget(items[item_idx]), j, i)
                 item_idx = item_idx + 1
 
-        #layout.setSizeConstraint( QtGui.QLayout.SetFixedSize )
+
+    def instantiateWidget(self, widget_info):
+        m = sys.modules[__name__] # current module
+        widget_classes = {
+            "dir": getattr(m, 'DirTarget'), 
+            "file": getattr(m, 'FileTarget'),
+            "create_file": getattr(m, 'CreateFileTarget'),
+            "create_dir": getattr(m, 'CreateDirTarget')
+        }
+        widget_class = widget_classes[widget_info['type']]
+        widget = widget_class(self, widget_info['name'], widget_info['icon'], widget_info['path'])
+        return widget
 
 class DropFrame(QtGui.QFrame):
     def __init__(self, parent=None):
