@@ -72,10 +72,9 @@ class DropTitleBar(QtGui.QDialog):
         self.parent.parent.collapse()
 
     def close(self):
-        QtGui.QApplication.instance().quit()
-
-    def close(self):
-        QtGui.QApplication.instance().quit()
+        reply = QtGui.QMessageBox.question(self, 'Close Droptopus', 'Are you sure you want to close the application?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        if reply == QtGui.QMessageBox.Yes:
+            QtGui.QApplication.instance().quit()
 
     def reject(self):
         print "" #do not close on escape
@@ -195,6 +194,7 @@ class MiniWindow(QtGui.QWidget):
         self.icon_height = self.pixmap.height()
         self.setFixedWidth(self.icon_width)
         self.setFixedHeight(self.icon_height)
+        self.setMouseTracking(True)
         self.setAcceptDrops(True)
 
     def paintEvent(self, event):
@@ -207,10 +207,25 @@ class MiniWindow(QtGui.QWidget):
     def sizeHint(self):
         return QtCore.QSize(self.icon_width, self.icon_height)
 
+    def expandAndPropagate(self, event):
+        def doExpandAndPropagate():
+            self.parent.expand()
+
+        return doExpandAndPropagate
+
     def dragEnterEvent(self, event):
         if not self.parent.is_expanded:
-            QtCore.QTimer.singleShot(100, self.parent.expand)
-        event.ignore()
+            QtCore.QTimer.singleShot(100, self.expandAndPropagate(event))
+
+    def showEvent(self, event):
+        super(MiniWindow, self).showEvent(event)
+        self.setMouseTracking(True)
+        self.setAcceptDrops(True)
+
+    def hideEvent(self, event):
+        super(MiniWindow, self).hideEvent(event)
+        self.setMouseTracking(False)
+        self.setAcceptDrops(False)
 
 class DarkDialog(QtGui.QDialog):
     def __init__(self, parent):
@@ -340,7 +355,9 @@ class MainWindow(QtGui.QMainWindow):
         elif action == about_action:
             self.showAbout()
         elif action == quit_action:
-            self.close()
+            reply = QtGui.QMessageBox.question(self, 'Close Droptopus', 'Are you sure you want to close the application?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+            if reply == QtGui.QMessageBox.Yes:
+                QtGui.QApplication.instance().quit()
 
     def expand(self):
         if self.is_expanded:

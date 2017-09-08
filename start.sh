@@ -1,4 +1,7 @@
 #!/bin/bash
+pushd . >/dev/null
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $DIR
 
 # If the virtual environment has not yet been initialized
 if [[ ! -d .env ]]; then
@@ -10,3 +13,5 @@ source .env/bin/activate
 
 # start the app
 python ./droptopus.py &
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+popd >/dev/null

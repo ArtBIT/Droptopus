@@ -73,6 +73,10 @@ class App(QApplication):
     DropWidget[draggedOver=True] {
         Background: rgba(0,0,0,70%);
     }
+    QFrame[frameShape="4"], /* QFrame::HLine == 0x0004 */
+    QFrame[frameShape="5"]  /* QFrame::VLine == 0x0005 */
+    {
+    }
     """
     self.setStyleSheet(css) 
     self.mainWindow = MainWindow()

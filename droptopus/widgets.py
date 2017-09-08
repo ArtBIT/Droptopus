@@ -103,6 +103,8 @@ class BaseDropWidget(QtGui.QWidget):
         if ok and name:
             old_filepath = join(config.ACTIONS_DIR, utils.slugify(self.name))
             new_filepath = join(config.ACTIONS_DIR, utils.slugify(name))
+            if old_filepath == new_filepath:
+                return
             if isfile(new_filepath):
                 return QtGui.QMessageBox.critical(self, 'Error', 'Target action already exists.', QtGui.QMessageBox.Ok)
 
