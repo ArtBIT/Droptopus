@@ -2,6 +2,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import sys
 import config
+import settings
 from window import MainWindow
 
 class App(QApplication):
@@ -72,10 +73,6 @@ class App(QApplication):
     {
     }
     """
-    QCoreApplication.setOrganizationName(config.ORG_NAME);
-    QCoreApplication.setOrganizationDomain(config.ORG_DOMAIN);
-    QCoreApplication.setApplicationName(config.APP_NAME);
-    self.settings = QSettings()
     self.setStyleSheet(css) 
     self.mainWindow = MainWindow()
     self.mainWindow.show();

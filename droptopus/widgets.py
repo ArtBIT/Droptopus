@@ -6,10 +6,11 @@ import urllib
 import tempfile
 import subprocess
 import config
+import settings
 
 from os import rename
 from shutil import copyfile
-from os.path import islink, isfile, isdir, join , expanduser
+from os.path import isfile, isdir, join , expanduser
 import utils
 
 from PyQt4 import QtGui, QtCore
@@ -36,16 +37,17 @@ class IconWidget(QtGui.QWidget):
         painter.drawPixmap(event.rect(), self.pixmap)
 
 class BaseDropWidget(QtGui.QWidget):
-    def __init__(self, parent, title, icon):
+    def __init__(self, parent, name, index, icon):
         super(BaseDropWidget, self).__init__(parent)
         self.setAcceptDrops(True)
 
         width = 100
         height = 100
-        self.name = title
+        self.name = name
+        self.index = index
         self.icon = IconWidget(self, icon)
         label = QtGui.QLabel()
-        label.setText(title)
+        label.setText(name)
         label.setAlignment(QtCore.Qt.AlignCenter)
         label.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Expanding);
         label.setMaximumWidth(width)
@@ -55,7 +57,9 @@ class BaseDropWidget(QtGui.QWidget):
             ('Paste', self.onPasteFromClipboard),
             ('Choose File', self.onFileOpen),
             ('--', None),
-            ('Rename', self.onRename),
+            ('Change Icon', self.onChangeIcon),
+            ('Change Name', self.onRename),
+            ('--', None),
             ('Remove', self.onDelete)
         ]
 
@@ -101,33 +105,24 @@ class BaseDropWidget(QtGui.QWidget):
     def onRename(self):
         name, ok = QtGui.QInputDialog.getText(self, "Enter the new name for this action", "Action name:", QtGui.QLineEdit.Normal, self.name)
         if ok and name:
-            old_filepath = join(config.ACTIONS_DIR, utils.slugify(self.name))
-            new_filepath = join(config.ACTIONS_DIR, utils.slugify(name))
-            if old_filepath == new_filepath:
-                return
-            if isfile(new_filepath):
-                return QtGui.QMessageBox.critical(self, 'Error', 'Target action already exists.', QtGui.QMessageBox.Ok)
-
-            if isfile(old_filepath) or isdir(old_filepath):
-                os.rename(old_filepath, new_filepath)
-            old_filepath = old_filepath + '.png'
-            if isfile(old_filepath):
-                new_filepath = new_filepath + '.png'
-                os.rename(old_filepath, new_filepath)
             self.name = name
+            self.label.setText(name)
+            item = settings.readItem(self.index)
+            item['name'] = self.name
+            settings.writeItem(item)
+
+    def onChangeIcon(self):
+        icon_filepath = QtGui.QFileDialog.getOpenFileName(self, 'Choose Icon', config.ASSETS_DIR)
+        if icon_filepath:
+            item = settings.readItem(self.index)
+            item['icon'] = icon_filepath
+            settings.writeItem(item)
             self.propagateEvent(QtCore.QEvent(EVENT_RELOAD_WIDGETS));
 
     def onDelete(self):
         reply = QtGui.QMessageBox.question(self, 'Message', 'Are you sure you want to delete this action?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         if reply == QtGui.QMessageBox.Yes:
-            filepath = join(config.ACTIONS_DIR, self.name)
-            if isfile(filepath):
-                os.remove(filepath)
-            if islink(filepath):
-                os.unlink(filepath)
-            filepath = filepath + '.png'
-            if os.path.isfile(filepath):
-                os.remove(filepath)
+            settings.removeItem(self.index)
             self.propagateEvent(QtCore.QEvent(EVENT_RELOAD_WIDGETS));
 
     def onFileOpen(self):
@@ -175,8 +170,8 @@ class BaseDropWidget(QtGui.QWidget):
         QtGui.QWidget.dropEvent(self, event)
 
 class DropWidget(BaseDropWidget):
-    def __init__(self, parent, title, icon, filepath):
-        super(DropWidget, self).__init__(parent, title, icon)
+    def __init__(self, parent, name, index, icon, filepath):
+        super(DropWidget, self).__init__(parent, name, index, icon)
         self.filepath = filepath
 
     def handle(self, context):
@@ -232,8 +227,8 @@ class FileTarget(DropWidget):
         subprocess.call([self.filepath, url])
 
 class CreateFileTarget(DropWidget):
-    def __init__(self, parent, title, icon, filepath):
-        super(CreateFileTarget, self).__init__(parent, title, icon, filepath)
+    def __init__(self, parent, name, index, icon, filepath):
+        super(CreateFileTarget, self).__init__(parent, name, index, icon, filepath)
         self.actions = [
             ('Paste', self.onPasteFromClipboard),
             ('Open...', self.onFileOpen)
@@ -245,32 +240,26 @@ class CreateFileTarget(DropWidget):
         name, ok = QtGui.QInputDialog.getText(self, "Enter the name for the new action", "Action name:", QtGui.QLineEdit.Normal, name)
         #name = unicode(name, encoding="UTF-8").strip()
         if ok and name:
-            action_filepath = join(config.ACTIONS_DIR, utils.slugify(name))
-            if isfile(action_filepath):
-                return QtGui.QMessageBox.critical(self, 'Error', 'Target action already exists.', QtGui.QMessageBox.Ok)
-            if re_url.match(context):
-                # download the url first
-                tmp = tempfile.NamedTemporaryFile(delete=False)
-                urllib.urlretrieve(context, tmp.name)
-                copyfile(tmp.name, action_filepath)
-            elif isfile(context):
-                copyfile(context, action_filepath)
-            else:
-                text_file = open(action_filepath, "w")
-                text_file.write(context)
-                text_file.close()
+            if not isfile(context):
+                return QtGui.QMessageBox.critical(self, 'Error', 'Target action must be a local file.', QtGui.QMessageBox.Ok)
 
             icon_filepath = QtGui.QFileDialog.getOpenFileName(self, 'Choose Icon', config.ASSETS_DIR)
-            if icon_filepath:
-                copyfile(icon_filepath, action_filepath + '.png')
+            if not icon_filepath:
+                icon_filepath = join(config.ASSETS_DIR, 'downloads.png')
+            settings.pushItem({
+                "type": "file",
+                "name": name,
+                "path": context,
+                "icon": icon_filepath
+            })
             return self.propagateEvent(QtCore.QEvent(EVENT_RELOAD_WIDGETS));
 
     def mouseDoubleClickEvent(self, event):
         self.onFileOpen()
 
 class CreateDirTarget(DropWidget):
-    def __init__(self, parent, title, icon, filepath):
-        super(CreateDirTarget, self).__init__(parent, title, icon, filepath)
+    def __init__(self, parent, name, index, icon, filepath):
+        super(CreateDirTarget, self).__init__(parent, name, index, icon, filepath)
         self.actions = [
             ('Paste', self.onPasteFromClipboard),
             ('Open...', self.onFileOpen)
@@ -287,17 +276,19 @@ class CreateDirTarget(DropWidget):
         name, ok = QtGui.QInputDialog.getText(self, "Enter the name for the new action", "Action name:", QtGui.QLineEdit.Normal, name)
         #name = unicode(name, encoding="UTF-8").strip()
         if ok and name:
-            action_filepath = join(config.ACTIONS_DIR, utils.slugify(name))
-            if isfile(action_filepath):
-                return QtGui.QMessageBox.critical(self, 'Error', 'Target action already exists.', QtGui.QMessageBox.Ok)
-            if isdir(context):
-                os.symlink(context, action_filepath)
-                icon_filepath = QtGui.QFileDialog.getOpenFileName(self, 'Choose Icon', config.ASSETS_DIR)
-                if icon_filepath:
-                    copyfile(icon_filepath, action_filepath + '.png')
-                return self.propagateEvent(QtCore.QEvent(EVENT_RELOAD_WIDGETS));
-            else:
+            if not isdir(context):
                 return QtGui.QMessageBox.critical(self, 'Error', 'Target should be a local directory.', QtGui.QMessageBox.Ok)
+
+            icon_filepath = QtGui.QFileDialog.getOpenFileName(self, 'Choose Icon', config.ASSETS_DIR)
+            if not icon_filepath:
+                icon_filepath = join(config.ASSETS_DIR, 'downloads.png')
+            settings.pushItem({
+                "type": "dir",
+                "name": name,
+                "path": context,
+                "icon": icon_filepath
+            })
+            return self.propagateEvent(QtCore.QEvent(EVENT_RELOAD_WIDGETS));
 
     def mouseDoubleClickEvent(self, event):
         self.onFileOpen()

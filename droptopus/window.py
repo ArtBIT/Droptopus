@@ -13,6 +13,7 @@ from os.path import isfile, isdir, join, expanduser
 import sys
 import math
 import config
+import settings
 import __version__
 
 from PyQt4 import QtGui, QtCore 
@@ -81,6 +82,7 @@ class DropTargetGrid(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.init_layout()
+        self.settings = QtCore.QSettings()
         self.reload()
 
     def init_layout(self):
@@ -103,48 +105,27 @@ class DropTargetGrid(QtGui.QWidget):
             self.reload()
         return super(DropTargetGrid, self).event(evt)
 
+
     def reload(self):
         layout = self.grid_layout;
         clearLayout(layout)
-        items = []
-        # Create the config folder if it doesn't exist
-        mypath = join(expanduser("~"),".droptopus")
-        if not isdir(mypath):
-            os.mkdir(mypath)
-        for fname in listdir(mypath):
-            if fname.endswith('.png'):
-                # ignore icons
-                continue 
-            if isdir(join(mypath, fname)):
-                icon_path = join(mypath, fname + '.png')
-                if not isfile(icon_path):
-                    icon_path = join(config.ASSETS_DIR, fname + '.png')
-                if not isfile(icon_path):
-                    icon_path = join(config.ASSETS_DIR, 'downloads.png')
-                items.append({"type":"dir", "name":fname, "path":join(mypath, fname), "icon":icon_path})
-            else:
-                icon_path = join(mypath, fname + '.png')
-                if not isfile(icon_path):
-                    icon_path = join(config.ASSETS_DIR, fname + '.png')
-                if not isfile(icon_path):
-                    icon_path = join(config.ASSETS_DIR, 'add_file.png')
-                items.append({"type":"file", "name":fname, "path":join(mypath, fname), "icon":icon_path})
-
+        items = settings.readItems()
         total_items = len(items)
         root = math.sqrt(total_items)
         rows = int(root)
         cols = int(total_items/rows) + 1
+        settings.writeItems(items)
 
         item_idx = 0
         for j in range(rows):
             for i in range(cols):
                 if item_idx >= total_items:
                     break
-                layout.addWidget(self.instantiateWidget(items[item_idx]), j, i)
+                layout.addWidget(self.instantiateWidget(items[item_idx], item_idx), j, i)
                 item_idx = item_idx + 1
 
 
-    def instantiateWidget(self, widget_info):
+    def instantiateWidget(self, widget_info, index = None):
         m = sys.modules[__name__] # current module
         widget_classes = {
             "dir": getattr(m, 'DirTarget'), 
@@ -153,7 +134,7 @@ class DropTargetGrid(QtGui.QWidget):
             "create_dir": getattr(m, 'CreateDirTarget')
         }
         widget_class = widget_classes[widget_info['type']]
-        widget = widget_class(self, widget_info['name'], widget_info['icon'], widget_info['path'])
+        widget = widget_class(self, widget_info['name'], index, widget_info['icon'], widget_info['path'])
         return widget
 
 class DropFrame(QtGui.QFrame):
