@@ -72,9 +72,7 @@ class DropTitleBar(QtGui.QDialog):
         self.parent.parent.collapse()
 
     def close(self):
-        reply = QtGui.QMessageBox.question(self, 'Close Droptopus', 'Are you sure you want to close the application?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-        if reply == QtGui.QMessageBox.Yes:
-            QtGui.QApplication.instance().quit()
+        self.parent.parent.close()
 
     def reject(self):
         print "" #do not close on escape
@@ -311,6 +309,8 @@ class AboutDialog(DarkDialog):
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
         QtGui.QMainWindow.__init__(self, parent)
+        self.settings = QtCore.QSettings()
+
         self.is_visible = True
         self.is_expanded = True
         self.is_move_action = False
@@ -324,15 +324,14 @@ class MainWindow(QtGui.QMainWindow):
         self.frame = DropFrame(self)
         self.frame.show()
 
+        self.readSettings()
+
         self.content = QtGui.QStackedWidget()
         self.setCentralWidget(self.content)
         self.content.addWidget(self.frame);
         self.content.addWidget(self.miniwin);
 
         self.setMouseTracking(True)
-        rect = QtGui.QDesktopWidget().screenGeometry()
-        mini = self.miniwin.sizeHint()
-        self.anchor = QtCore.QPoint(rect.right() - mini.width(), rect.bottom() - mini.height())
         self.collapse()
 
     def contextMenuEvent(self, event):
@@ -356,9 +355,7 @@ class MainWindow(QtGui.QMainWindow):
         elif action == about_action:
             self.showAbout()
         elif action == quit_action:
-            reply = QtGui.QMessageBox.question(self, 'Close Droptopus', 'Are you sure you want to close the application?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-            if reply == QtGui.QMessageBox.Yes:
-                QtGui.QApplication.instance().quit()
+            self.close()
 
     def expand(self):
         if self.is_expanded:
@@ -408,3 +405,29 @@ class MainWindow(QtGui.QMainWindow):
         if self.content.currentWidget() == self.miniwin:
             self.anchor = self.pos()
 
+    def writeSettings(self):
+        self.settings.beginGroup("MainWindow");
+        self.settings.setValue("anchor", self.anchor);
+        self.settings.endGroup();
+
+    def readSettings(self):
+        self.settings.beginGroup("MainWindow");
+        saved_anchor = self.settings.value("anchor", None);
+        if saved_anchor != None:
+            self.anchor = saved_anchor.toPoint();
+        else:
+            rect = QtGui.QDesktopWidget().screenGeometry()
+            mini = self.miniwin.sizeHint()
+            self.anchor = QtCore.QPoint(rect.right() - mini.width(), rect.bottom() - mini.height())
+        self.settings.endGroup();
+
+    def userReallyWantsToQuit(self):
+        reply = QtGui.QMessageBox.question(self, 'Close Droptopus', 'Are you sure you want to close the application?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        return reply == QtGui.QMessageBox.Yes
+
+    def closeEvent(self, event):
+        if self.userReallyWantsToQuit():
+            self.writeSettings();
+            event.accept();
+        else:
+            event.ignore();

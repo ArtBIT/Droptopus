@@ -72,6 +72,10 @@ class App(QApplication):
     {
     }
     """
+    QCoreApplication.setOrganizationName(config.ORG_NAME);
+    QCoreApplication.setOrganizationDomain(config.ORG_DOMAIN);
+    QCoreApplication.setApplicationName(config.APP_NAME);
+    self.settings = QSettings()
     self.setStyleSheet(css) 
     self.mainWindow = MainWindow()
     self.mainWindow.show();

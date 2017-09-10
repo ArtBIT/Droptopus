@@ -19,7 +19,7 @@ from setuptools import find_packages, setup, Command
 # '/|||\`
 #   '|`   
 NAME = 'droptopus'
-DESCRIPTION = 'Drag and drop router, that routes dropped object to predefined actions'
+DESCRIPTION = 'Drag and drop receiver, that routes dropped object to predefined actions'
 URL = 'https://github.com/artbit/Droptopus'
 EMAIL = 'djordje.ungar@gmail.com'
 AUTHOR = 'Djordje Ungar'
@@ -94,7 +94,7 @@ setup(
     # },
     install_requires=REQUIRED,
     include_package_data=True,
-    license='ISC',
+    license='MIT',
     classifiers=[
         # Trove classifiers
         # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
