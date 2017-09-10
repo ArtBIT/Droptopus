@@ -10,7 +10,7 @@ import config
 from os import rename
 from shutil import copyfile
 from os.path import islink, isfile, isdir, join , expanduser
-from droptopus import utils
+import utils
 
 from PyQt4 import QtGui, QtCore
 
@@ -154,6 +154,7 @@ class BaseDropWidget(QtGui.QWidget):
         self.setStyleProperty("draggedOver", False);
 
     def dragEnterEvent(self, event):
+        print event
         self.setStyleProperty("draggedOver", True);
         if event.mimeData().hasUrls():
             event.accept()

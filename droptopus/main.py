@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import droptopus
+from app import App
 
 def main():
-    app = droptopus.App()
+    app = App()
     sys.exit(app.exec_())
 
 if __name__ == '__main__':

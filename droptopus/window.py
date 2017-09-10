@@ -16,7 +16,7 @@ import config
 import __version__
 
 from PyQt4 import QtGui, QtCore 
-from droptopus.widgets import IconWidget, DirTarget, FileTarget, CreateFileTarget, CreateDirTarget, EVENT_RELOAD_WIDGETS
+from widgets import IconWidget, DirTarget, FileTarget, CreateFileTarget, CreateDirTarget, EVENT_RELOAD_WIDGETS
 
 # Remove all items from the layout
 def clearLayout(layout):
@@ -216,6 +216,7 @@ class MiniWindow(QtGui.QWidget):
     def dragEnterEvent(self, event):
         if not self.parent.is_expanded:
             QtCore.QTimer.singleShot(100, self.expandAndPropagate(event))
+        super(MiniWindow, self).dragEnterEvent(event)
 
     def showEvent(self, event):
         super(MiniWindow, self).showEvent(event)
