@@ -26,7 +26,6 @@ Droptopus is a drag'n'drop receiver, which routes dropped objects to the designa
  `cd Droptopus && ./bin/droptopus`
 
 ## ...Or build the binary yourself
-It is the only way I could release this under a MIT license.
  - Install the dependencies
  - Clone the repo:
  `git clone https://github.com/ArtBIT/Droptopus`
@@ -36,4 +35,10 @@ It is the only way I could release this under a MIT license.
  `cp dist/droptopus /usr/local/bin`
 
 ## Credits
+
 This project uses awesome icons from [http://icons8.com](Icons8)
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE.md file for details
+
