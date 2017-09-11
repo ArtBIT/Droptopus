@@ -11,157 +11,14 @@ import os
 from os import listdir
 from os.path import isfile, isdir, join, expanduser
 import sys
-import math
 import config
 import settings
+import utils
 import __version__
 
 from PyQt4 import QtGui, QtCore 
-from widgets import IconWidget, DirTarget, FileTarget, CreateFileTarget, CreateDirTarget, EVENT_RELOAD_WIDGETS
-
-# Remove all items from the layout
-def clearLayout(layout):
-    if layout != None:
-        while layout.count():
-            child = layout.takeAt(0)
-            if child.widget() is not None:
-                child.widget().deleteLater()
-            elif child.layout() is not None:
-                clearLayout(child.layout())
-
-
-class DropTitleBar(QtGui.QDialog):
-    def __init__(self, parent, title):
-        QtGui.QWidget.__init__(self, parent)
-        self.parent = parent
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-        self.setAutoFillBackground(True)
-        self.setBackgroundRole(QtGui.QPalette.Highlight)
-
-        minmax = QtGui.QToolButton(self)
-        minmax.setIcon(QtGui.QIcon(join(config.ASSETS_DIR, 'minimize_window_white.png')))
-        minmax.setMinimumHeight(10)
-        minmax.setWindowOpacity(0.5)
-        minmax.clicked.connect(self.minimax)
-        minmax.setAttribute(QtCore.Qt.WA_MacShowFocusRect, 0)
-
-        close=QtGui.QToolButton(self)
-        close.setIcon(QtGui.QIcon(join(config.ASSETS_DIR, 'close_window_white.png')))
-        close.setMinimumHeight(10)
-        close.setWindowOpacity(0.5)
-        close.clicked.connect(self.close)
-        close.setAttribute(QtCore.Qt.WA_MacShowFocusRect, 0)
-
-        self.label=QtGui.QLabel(self)
-        self.label.setText(title)
-
-        hbox = QtGui.QHBoxLayout(self)
-        hbox.addWidget(self.label)
-        hbox.addWidget(minmax)
-        hbox.addWidget(close)
-        hbox.insertStretch(1,500)
-        hbox.setSpacing(0)
-        self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
-
-    def contextMenuEvent(self, event):
-        self.parent.contextMenuEvent(event)
-
-    def setTitle(self, title):
-        self.label.setText(title)
-
-    def minimax(self):
-        self.parent.parent.collapse()
-
-    def close(self):
-        self.parent.parent.close()
-
-    def reject(self):
-        print "" #do not close on escape
-
-class DropTargetGrid(QtGui.QWidget):
-    def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
-        self.init_layout()
-        self.settings = QtCore.QSettings()
-        self.reload()
-
-    def init_layout(self):
-        layout = QtGui.QHBoxLayout(self)
-        sidebar_layout = QtGui.QVBoxLayout()
-        sidebar_layout.addWidget(self.instantiateWidget({"type":"create_dir", "name": "Add Directory", "path": "", "icon": join(config.ASSETS_DIR, 'add_folder.png')}))
-        sidebar_layout.addWidget(self.instantiateWidget({"type":"create_file", "name": "Add Executable", "path": "", "icon": join(config.ASSETS_DIR, 'add_file.png')}))
-        sidebar_layout.addStretch()
-        layout.addLayout(sidebar_layout)
-        vline = QtGui.QFrame()
-        vline.setFrameShape(QtGui.QFrame.VLine)
-        vline.setFrameShadow(QtGui.QFrame.Plain)
-        layout.addWidget(vline)
-        self.grid_layout = QtGui.QGridLayout()
-        layout.addLayout(self.grid_layout)
-
-    def event(self, evt):
-        if evt.type() == EVENT_RELOAD_WIDGETS:
-            evt.accept()
-            self.reload()
-        return super(DropTargetGrid, self).event(evt)
-
-
-    def reload(self):
-        layout = self.grid_layout;
-        clearLayout(layout)
-        items = settings.readItems()
-        total_items = len(items)
-        root = math.sqrt(total_items)
-        rows = int(root)
-        cols = int(total_items/rows) + 1
-        settings.writeItems(items)
-
-        item_idx = 0
-        for j in range(rows):
-            for i in range(cols):
-                if item_idx >= total_items:
-                    break
-                layout.addWidget(self.instantiateWidget(items[item_idx], item_idx), j, i)
-                item_idx = item_idx + 1
-
-
-    def instantiateWidget(self, widget_info, index = None):
-        m = sys.modules[__name__] # current module
-        widget_classes = {
-            "dir": getattr(m, 'DirTarget'), 
-            "file": getattr(m, 'FileTarget'),
-            "create_file": getattr(m, 'CreateFileTarget'),
-            "create_dir": getattr(m, 'CreateDirTarget')
-        }
-        widget_class = widget_classes[widget_info['type']]
-        widget = widget_class(self, widget_info['type'], widget_info['name'], index, widget_info['icon'], widget_info['path'])
-        return widget
-
-class DropFrame(QtGui.QFrame):
-    def __init__(self, parent=None):
-        QtGui.QFrame.__init__(self, parent)
-        self.setFrameShape(QtGui.QFrame.StyledPanel)
-        self.parent = parent
-
-        self.titlebar = DropTitleBar(self, "Droptopus")
-        self.content = DropTargetGrid(self)
-
-        vbox = QtGui.QVBoxLayout(self)
-        vbox.addWidget(self.titlebar)
-        vbox.addWidget(self.content)
-        vbox.setMargin(0)
-        vbox.setSpacing(0)
-        self.setLayout(vbox)
-
-    def mouseDoubleClickEvent(self, event):
-        self.parent.collapse()
-
-    def sizeHint(self):
-        tbs = self.titlebar.sizeHint()
-        return QtCore.QSize(tbs.width(), tbs.height()).__add__(self.content.sizeHint())
-
-    def reload(self):
-        self.content.reload()
+from widgets import IconWidget, DirTarget, FileTarget, CreateFileTarget, CreateDirTarget, DropFrame
+from widgets import EVENT_COLLAPSE_WINDOW, EVENT_CLOSE_WINDOW
 
 class MiniWindow(QtGui.QWidget):
     def __init__(self, parent=None):
@@ -173,48 +30,19 @@ class MiniWindow(QtGui.QWidget):
         self.icon_height = self.pixmap.height()
         self.setFixedWidth(self.icon_width)
         self.setFixedHeight(self.icon_height)
-        self.setMouseTracking(True)
-        self.setAcceptDrops(True)
 
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
         painter.drawPixmap(event.rect(), self.pixmap)
 
-    def mouseDoubleClickEvent(self, event):
-        self.parent.expand()
-
     def sizeHint(self):
         return QtCore.QSize(self.icon_width, self.icon_height)
-
-    def expandAndPropagate(self, event):
-        def doExpandAndPropagate():
-            self.parent.expand()
-
-        return doExpandAndPropagate
-
-    def dragEnterEvent(self, event):
-        if not self.parent.is_expanded:
-            QtCore.QTimer.singleShot(100, self.expandAndPropagate(event))
-        super(MiniWindow, self).dragEnterEvent(event)
-
-    def showEvent(self, event):
-        super(MiniWindow, self).showEvent(event)
-        self.setMouseTracking(True)
-        self.setAcceptDrops(True)
-
-    def hideEvent(self, event):
-        super(MiniWindow, self).hideEvent(event)
-        self.setMouseTracking(False)
-        self.setAcceptDrops(False)
 
 class DarkDialog(QtGui.QDialog):
     def __init__(self, parent):
         super(DarkDialog, self).__init__(parent)
-        #self.setAutoFillBackground(True)
-        #self.setBackgroundRole(QtGui.QPalette.Highlight)
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.Tool)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground, True)
-        #self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.setMouseTracking(True)
         self.is_move_action = False
         self.offset = None
@@ -319,6 +147,7 @@ class MainWindow(QtGui.QMainWindow):
         self.content.addWidget(self.frame);
         self.content.addWidget(self.miniwin);
 
+        self.setAcceptDrops(True)
         self.setMouseTracking(True)
         self.collapse()
 
@@ -348,6 +177,7 @@ class MainWindow(QtGui.QMainWindow):
     def expand(self):
         if self.is_expanded:
             return
+        self.setAcceptDrops(False)
         self.is_expanded = True
         self.content.hide()
         expanded = self.frame.sizeHint()
@@ -359,6 +189,7 @@ class MainWindow(QtGui.QMainWindow):
     def collapse(self):
         if not self.is_expanded:
             return
+        self.setAcceptDrops(True)
         self.is_expanded = False
         self.content.hide()
         mini = self.miniwin.sizeHint()
@@ -419,3 +250,31 @@ class MainWindow(QtGui.QMainWindow):
             event.accept();
         else:
             event.ignore();
+
+    #def dragMoveEvent(self, event):
+    #    super(MainWindow, self).dragMoveEvent(event)
+
+    def dragEnterEvent(self, event):
+        if not self.is_expanded:
+            QtCore.QTimer.singleShot(200, self.expand)
+        else:
+            super(MainWindow, self).dragEnterEvent(event)
+
+    def mouseDoubleClickEvent(self, event):
+        if self.is_expanded:
+            self.collapse()
+        else:
+            self.expand()
+
+    def event(self, evt):
+        et = evt.type()
+        if et == EVENT_COLLAPSE_WINDOW:
+            evt.accept()
+            self.collapse()
+            return True
+        elif et == EVENT_CLOSE_WINDOW:
+            evt.accept()
+            self.close()
+            return True
+        return super(MainWindow, self).event(evt)
+

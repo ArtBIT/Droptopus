@@ -3,6 +3,7 @@ import sys
 import re
 import magic
 import urllib
+import math
 import tempfile
 import subprocess
 import config
@@ -17,6 +18,8 @@ from forms import EditItemForm
 from PyQt4 import QtGui, QtCore
 
 EVENT_RELOAD_WIDGETS = QtCore.QEvent.registerEventType(1337);
+EVENT_COLLAPSE_WINDOW = QtCore.QEvent.registerEventType(1338);
+EVENT_CLOSE_WINDOW = QtCore.QEvent.registerEventType(1339);
 
 re_url = re.compile(
         r'^(?:(?:http|ftp)s?://)?' # http:// or https://
@@ -66,21 +69,8 @@ class BaseDropWidget(QtGui.QWidget):
         self.setFixedWidth(width)
         #self.setFixedSize(width,height)
 
-    def propagateEvent(self, evt):
-        app = QtGui.QApplication.instance()
-        target = self.parent()
-        while target:
-            app.sendEvent(target, evt)
-            if not evt.isAccepted():
-                if hasattr(target, 'parent'):
-                    target = target.parent()
-            else:
-                target = None
-        return evt.isAccepted()
-
     def handle(self, context):
         context = unicode(context.toUtf8(), encoding="UTF-8")
-        print "Context: "+context
         return context
 
     def setStyleProperty(self, prop, value):
@@ -88,10 +78,7 @@ class BaseDropWidget(QtGui.QWidget):
         self.style().unpolish(self)
         self.style().polish(self)
 
-    def dragLeaveEvent(self, event):
-        self.setStyleProperty("draggedOver", False);
-
-    def dragEnterEvent(self, event):
+    def handleDragEvent(self, event):
         self.setStyleProperty("draggedOver", True);
         if event.mimeData().hasUrls():
             event.accept()
@@ -102,13 +89,26 @@ class BaseDropWidget(QtGui.QWidget):
         else:
             event.ignore()
 
+    def dragMoveEvent(self, event):
+        self.handleDragEvent(event)
+
+    def dragEnterEvent(self, event):
+        self.handleDragEvent(event)
+
+    def dragLeaveEvent(self, event):
+        self.setStyleProperty("draggedOver", False);
+
     def dropEvent(self, event):
         if event.mimeData().hasText():
+            event.accept()
             self.handle(event.mimeData().text())
         elif event.mimeData().hasUrls():
+            event.accept()
             for url in event.mimeData().urls():
                 url = str(url.toString())
                 self.handle(url)
+
+        utils.propagateEvent(self, QtCore.QEvent(EVENT_COLLAPSE_WINDOW));
         QtGui.QWidget.dropEvent(self, event)
     
     # Have to override this so that QWidget subclasses
@@ -192,13 +192,13 @@ class DropWidget(BaseDropWidget):
         form = EditItemForm(item, self)
         form.setModal(True)
         form.exec_()
-        self.propagateEvent(QtCore.QEvent(EVENT_RELOAD_WIDGETS));
+        utils.propagateEvent(self, QtCore.QEvent(EVENT_RELOAD_WIDGETS));
 
     def onDelete(self):
         reply = QtGui.QMessageBox.question(self, 'Message', 'Are you sure you want to delete this action?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         if reply == QtGui.QMessageBox.Yes:
             settings.removeItem(self.index)
-            self.propagateEvent(QtCore.QEvent(EVENT_RELOAD_WIDGETS));
+            utils.propagateEvent(self, QtCore.QEvent(EVENT_RELOAD_WIDGETS));
 
     def onFileOpen(self):
         myhome = expanduser("~")
@@ -212,12 +212,10 @@ class DropWidget(BaseDropWidget):
 
 class DirTarget(DropWidget):
     def handle_filepath(self, filepath):
-        print "DirTarget.handle_filepath: "+filepath
         dest = join(self.filepath, os.path.basename(filepath))
         copyfile(filepath, dest)
 
     def handle_text(self, text):
-        print "DirTarget.handle_text: "+text
         tmp = next(tempfile._get_candidate_names())
         tmp = join(self.filepath, tmp)
         text_file = open(tmp+".txt", "w")
@@ -225,7 +223,6 @@ class DirTarget(DropWidget):
         text_file.close()
 
     def handle_url(self, url):
-        print "DirTarget.handle_url: "+url
         tmp = tempfile.NamedTemporaryFile(delete=False)
         urllib.urlretrieve(url, tmp.name)
         ext = magic.from_file(tmp.name, mime=True).split('/')[1]
@@ -234,15 +231,12 @@ class DirTarget(DropWidget):
 
 class FileTarget(DropWidget):
     def handle_filepath(self, filepath):
-        print "FileTarget.handle_filepath: "+filepath
         subprocess.call([self.filepath, filepath])
 
     def handle_text(self, text):
-        print "FileTarget.handle_text: "+text
         subprocess.call([self.filepath, text])
 
     def handle_url(self, url):
-        print "FileTarget.handle_url: "+url
         subprocess.call([self.filepath, url])
 
 class CreateFileTarget(DropWidget):
@@ -271,7 +265,7 @@ class CreateFileTarget(DropWidget):
                 "path": context,
                 "icon": icon_filepath
             })
-            return self.propagateEvent(QtCore.QEvent(EVENT_RELOAD_WIDGETS));
+            return utils.propagateEvent(self, QtCore.QEvent(EVENT_RELOAD_WIDGETS));
 
     def mouseDoubleClickEvent(self, event):
         self.onFileOpen()
@@ -307,7 +301,136 @@ class CreateDirTarget(DropWidget):
                 "path": context,
                 "icon": icon_filepath
             })
-            return self.propagateEvent(QtCore.QEvent(EVENT_RELOAD_WIDGETS));
+            return utils.propagateEvent(self, QtCore.QEvent(EVENT_RELOAD_WIDGETS));
 
     def mouseDoubleClickEvent(self, event):
         self.onFileOpen()
+
+
+class DropTitleBar(QtGui.QDialog):
+    def __init__(self, parent, title):
+        QtGui.QWidget.__init__(self, parent)
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        self.setAutoFillBackground(True)
+        self.setBackgroundRole(QtGui.QPalette.Highlight)
+
+        minmax = QtGui.QToolButton(self)
+        minmax.setIcon(QtGui.QIcon(join(config.ASSETS_DIR, 'minimize_window_white.png')))
+        minmax.setMinimumHeight(10)
+        minmax.setWindowOpacity(0.5)
+        minmax.clicked.connect(self.minimax)
+        minmax.setAttribute(QtCore.Qt.WA_MacShowFocusRect, 0)
+
+        close=QtGui.QToolButton(self)
+        close.setIcon(QtGui.QIcon(join(config.ASSETS_DIR, 'close_window_white.png')))
+        close.setMinimumHeight(10)
+        close.setWindowOpacity(0.5)
+        close.clicked.connect(self.close)
+        close.setAttribute(QtCore.Qt.WA_MacShowFocusRect, 0)
+
+        self.label=QtGui.QLabel(self)
+        self.label.setText(title)
+
+        hbox = QtGui.QHBoxLayout(self)
+        hbox.addWidget(self.label)
+        hbox.addWidget(minmax)
+        hbox.addWidget(close)
+        hbox.insertStretch(1,500)
+        hbox.setSpacing(0)
+        self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+
+    def contextMenuEvent(self, event):
+        self.parent().contextMenuEvent(event)
+
+    def setTitle(self, title):
+        self.label.setText(title)
+
+    def minimax(self):
+        utils.propagateEvent(self, QtCore.QEvent(EVENT_COLLAPSE_WINDOW));
+
+    def close(self):
+        utils.propagateEvent(self, QtCore.QEvent(EVENT_CLOSE_WINDOW));
+
+    def reject(self):
+        print "" #do not close on escape
+
+class DropTargetGrid(QtGui.QWidget):
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self, parent)
+        self.init_layout()
+        self.settings = QtCore.QSettings()
+        self.reload()
+
+    def init_layout(self):
+        layout = QtGui.QHBoxLayout(self)
+        sidebar_layout = QtGui.QVBoxLayout()
+        sidebar_layout.addWidget(self.instantiateWidget({"type":"create_dir", "name": "Add Directory", "path": "", "icon": join(config.ASSETS_DIR, 'add_folder.png')}))
+        sidebar_layout.addWidget(self.instantiateWidget({"type":"create_file", "name": "Add Executable", "path": "", "icon": join(config.ASSETS_DIR, 'add_file.png')}))
+        sidebar_layout.addStretch()
+        layout.addLayout(sidebar_layout)
+        vline = QtGui.QFrame()
+        vline.setFrameShape(QtGui.QFrame.VLine)
+        vline.setFrameShadow(QtGui.QFrame.Plain)
+        layout.addWidget(vline)
+        self.grid_layout = QtGui.QGridLayout()
+        layout.addLayout(self.grid_layout)
+
+    def event(self, evt):
+        if evt.type() == EVENT_RELOAD_WIDGETS:
+            evt.accept()
+            self.reload()
+        return super(DropTargetGrid, self).event(evt)
+
+
+    def reload(self):
+        layout = self.grid_layout;
+        utils.clearLayout(layout)
+        items = settings.readItems()
+        total_items = len(items)
+        root = math.sqrt(total_items)
+        rows = int(root)
+        cols = int(total_items/rows) + 1
+        settings.writeItems(items)
+
+        item_idx = 0
+        for j in range(rows):
+            for i in range(cols):
+                if item_idx >= total_items:
+                    break
+                layout.addWidget(self.instantiateWidget(items[item_idx], item_idx), j, i)
+                item_idx = item_idx + 1
+
+
+    def instantiateWidget(self, widget_info, index = None):
+        m = sys.modules[__name__] # current module
+        widget_classes = {
+            "dir": getattr(m, 'DirTarget'), 
+            "file": getattr(m, 'FileTarget'),
+            "create_file": getattr(m, 'CreateFileTarget'),
+            "create_dir": getattr(m, 'CreateDirTarget')
+        }
+        widget_class = widget_classes[widget_info['type']]
+        widget = widget_class(self, widget_info['type'], widget_info['name'], index, widget_info['icon'], widget_info['path'])
+        return widget
+
+class DropFrame(QtGui.QFrame):
+    def __init__(self, parent=None):
+        QtGui.QFrame.__init__(self, parent)
+        self.setFrameShape(QtGui.QFrame.StyledPanel)
+
+        self.titlebar = DropTitleBar(self, "Droptopus")
+        self.content = DropTargetGrid(self)
+
+        vbox = QtGui.QVBoxLayout(self)
+        vbox.addWidget(self.titlebar)
+        vbox.addWidget(self.content)
+        vbox.setMargin(0)
+        vbox.setSpacing(0)
+        self.setLayout(vbox)
+
+    def sizeHint(self):
+        tbs = self.titlebar.sizeHint()
+        return QtCore.QSize(tbs.width(), tbs.height()).__add__(self.content.sizeHint())
+
+    def reload(self):
+        self.content.reload()
