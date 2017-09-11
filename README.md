@@ -1,5 +1,5 @@
 # Droptopus
-![Droptopus Logo](/assets/droptopus.png)
+![Droptopus Logo](/droptopus/assets/droptopus.png)
 
 Droptopus is a drag'n'drop receiver, which routes dropped objects to the designated actions.
 
