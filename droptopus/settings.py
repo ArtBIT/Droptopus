@@ -40,9 +40,15 @@ def readItem(index):
     return items[index]
 
 def writeItem(item):
-    items = readItems()
-    items[item['index']] = item
-    writeItems(items)
+    try:
+        index = int(item['index'])
+        items = readItems()
+        items[item['index']] = item
+        writeItems(items)
+        return True
+    except ValueError:
+        return pushItem(item)
+    return False
 
 def pushItem(item):
     items = readItems()

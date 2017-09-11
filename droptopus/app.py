@@ -37,6 +37,7 @@ class App(QApplication):
         color:white;
         Background: transparent;
     }
+    EditItemForm QLabel,
     QMessageBox QLabel,
     QInputDialog QLabel {
         color: #333;

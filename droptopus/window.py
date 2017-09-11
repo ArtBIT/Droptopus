@@ -88,8 +88,8 @@ class DropTargetGrid(QtGui.QWidget):
     def init_layout(self):
         layout = QtGui.QHBoxLayout(self)
         sidebar_layout = QtGui.QVBoxLayout()
-        sidebar_layout.addWidget(self.instantiateWidget({"type":"create_dir", "name": "New Target Directory", "path": "", "icon": join(config.ASSETS_DIR, 'add_folder.png')}))
-        sidebar_layout.addWidget(self.instantiateWidget({"type":"create_file", "name": "New Target Action", "path": "", "icon": join(config.ASSETS_DIR, 'add_file.png')}))
+        sidebar_layout.addWidget(self.instantiateWidget({"type":"create_dir", "name": "Add Directory", "path": "", "icon": join(config.ASSETS_DIR, 'add_folder.png')}))
+        sidebar_layout.addWidget(self.instantiateWidget({"type":"create_file", "name": "Add Executable", "path": "", "icon": join(config.ASSETS_DIR, 'add_file.png')}))
         sidebar_layout.addStretch()
         layout.addLayout(sidebar_layout)
         vline = QtGui.QFrame()
@@ -134,7 +134,7 @@ class DropTargetGrid(QtGui.QWidget):
             "create_dir": getattr(m, 'CreateDirTarget')
         }
         widget_class = widget_classes[widget_info['type']]
-        widget = widget_class(self, widget_info['name'], index, widget_info['icon'], widget_info['path'])
+        widget = widget_class(self, widget_info['type'], widget_info['name'], index, widget_info['icon'], widget_info['path'])
         return widget
 
 class DropFrame(QtGui.QFrame):

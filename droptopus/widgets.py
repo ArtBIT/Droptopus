@@ -7,11 +7,12 @@ import tempfile
 import subprocess
 import config
 import settings
+import utils
 
 from os import rename
 from shutil import copyfile
 from os.path import isfile, isdir, join , expanduser
-import utils
+from forms import EditItemForm
 
 from PyQt4 import QtGui, QtCore
 
@@ -45,6 +46,7 @@ class BaseDropWidget(QtGui.QWidget):
         height = 100
         self.name = name
         self.index = index
+        self.iconpath = icon
         self.icon = IconWidget(self, icon)
         label = QtGui.QLabel()
         label.setText(name)
@@ -53,16 +55,6 @@ class BaseDropWidget(QtGui.QWidget):
         label.setMaximumWidth(width)
         label.setWordWrap(True)
         self.label = label
-        self.actions = [
-            ('Paste', self.onPasteFromClipboard),
-            ('Choose File', self.onFileOpen),
-            ('--', None),
-            ('Change Icon', self.onChangeIcon),
-            ('Change Name', self.onRename),
-            ('--', None),
-            ('Remove', self.onDelete)
-        ]
-
         layout = QtGui.QVBoxLayout()
         layout.addWidget(self.icon)
         layout.setAlignment(self.icon, QtCore.Qt.AlignCenter)
@@ -84,55 +76,6 @@ class BaseDropWidget(QtGui.QWidget):
             else:
                 target = None
         return evt.isAccepted()
-
-    def contextMenuEvent(self, event):
-        if not self.actions:
-            return
-
-        menu = QtGui.QMenu(self)
-        actions = {}
-        for k, v in self.actions:
-            if k == '--':
-                menu.addSeparator()
-                continue
-            action = menu.addAction(k)
-            actions[action] = v
-
-        action = menu.exec_(self.mapToGlobal(event.pos()))
-        if action in actions:
-            actions[action]()
-
-    def onRename(self):
-        name, ok = QtGui.QInputDialog.getText(self, "Enter the new name for this action", "Action name:", QtGui.QLineEdit.Normal, self.name)
-        if ok and name:
-            self.name = name
-            self.label.setText(name)
-            item = settings.readItem(self.index)
-            item['name'] = self.name
-            settings.writeItem(item)
-
-    def onChangeIcon(self):
-        icon_filepath = QtGui.QFileDialog.getOpenFileName(self, 'Choose Icon', config.ASSETS_DIR)
-        if icon_filepath:
-            item = settings.readItem(self.index)
-            item['icon'] = icon_filepath
-            settings.writeItem(item)
-            self.propagateEvent(QtCore.QEvent(EVENT_RELOAD_WIDGETS));
-
-    def onDelete(self):
-        reply = QtGui.QMessageBox.question(self, 'Message', 'Are you sure you want to delete this action?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-        if reply == QtGui.QMessageBox.Yes:
-            settings.removeItem(self.index)
-            self.propagateEvent(QtCore.QEvent(EVENT_RELOAD_WIDGETS));
-
-    def onFileOpen(self):
-        myhome = expanduser("~")
-        fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file', myhome)
-        self.handle(fname)
-
-    def onPasteFromClipboard(self):
-        clipboard = QtGui.QApplication.instance().clipboard()
-        self.handle(clipboard.text())
 
     def handle(self, context):
         context = unicode(context.toUtf8(), encoding="UTF-8")
@@ -170,9 +113,18 @@ class BaseDropWidget(QtGui.QWidget):
         QtGui.QWidget.dropEvent(self, event)
 
 class DropWidget(BaseDropWidget):
-    def __init__(self, parent, name, index, icon, filepath):
+    def __init__(self, parent, widget_type, name, index, icon, filepath):
         super(DropWidget, self).__init__(parent, name, index, icon)
+        self.type = widget_type
         self.filepath = filepath
+        self.actions = [
+            ('Process Clipboard', self.onPasteFromClipboard),
+            ('Process File...', self.onFileOpen),
+            ('--', None),
+            ('Edit...', self.onEdit),
+            ('Remove', self.onDelete)
+        ]
+
 
     def handle(self, context):
         context = super(DropWidget, self).handle(context)
@@ -190,6 +142,52 @@ class DropWidget(BaseDropWidget):
             os.startfile(self.filepath)
         elif os.name == 'posix':
             subprocess.call(('xdg-open', self.filepath))
+
+    def contextMenuEvent(self, event):
+        if not self.actions:
+            return
+
+        menu = QtGui.QMenu(self)
+        actions = {}
+        for k, v in self.actions:
+            if k == '--':
+                menu.addSeparator()
+                continue
+            action = menu.addAction(k)
+            actions[action] = v
+
+        action = menu.exec_(self.mapToGlobal(event.pos()))
+        if action in actions:
+            actions[action]()
+
+    def onEdit(self):
+        item = {
+            "index": self.index,
+            "type": self.type,
+            "name": self.name,
+            "path": self.filepath,
+            "icon": self.iconpath,
+        }
+        form = EditItemForm(item, self)
+        form.setModal(True)
+        form.exec_()
+        self.propagateEvent(QtCore.QEvent(EVENT_RELOAD_WIDGETS));
+
+    def onDelete(self):
+        reply = QtGui.QMessageBox.question(self, 'Message', 'Are you sure you want to delete this action?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        if reply == QtGui.QMessageBox.Yes:
+            settings.removeItem(self.index)
+            self.propagateEvent(QtCore.QEvent(EVENT_RELOAD_WIDGETS));
+
+    def onFileOpen(self):
+        myhome = expanduser("~")
+        fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file', myhome)
+        self.handle(fname)
+
+    def onPasteFromClipboard(self):
+        clipboard = QtGui.QApplication.instance().clipboard()
+        self.handle(clipboard.text())
+
 
 class DirTarget(DropWidget):
     def handle_filepath(self, filepath):
@@ -227,11 +225,11 @@ class FileTarget(DropWidget):
         subprocess.call([self.filepath, url])
 
 class CreateFileTarget(DropWidget):
-    def __init__(self, parent, name, index, icon, filepath):
-        super(CreateFileTarget, self).__init__(parent, name, index, icon, filepath)
+    def __init__(self, parent, widget_type, name, index, icon, filepath):
+        super(CreateFileTarget, self).__init__(parent, widget_type, name, index, icon, filepath)
         self.actions = [
-            ('Paste', self.onPasteFromClipboard),
-            ('Open...', self.onFileOpen)
+            ('Process Clipboard', self.onPasteFromClipboard),
+            ('Process File...', self.onFileOpen)
         ]
 
     def handle(self, context):
@@ -247,7 +245,7 @@ class CreateFileTarget(DropWidget):
             if not icon_filepath:
                 icon_filepath = join(config.ASSETS_DIR, 'downloads.png')
             settings.pushItem({
-                "type": "file",
+                "type": self.type,
                 "name": name,
                 "path": context,
                 "icon": icon_filepath
@@ -258,11 +256,11 @@ class CreateFileTarget(DropWidget):
         self.onFileOpen()
 
 class CreateDirTarget(DropWidget):
-    def __init__(self, parent, name, index, icon, filepath):
-        super(CreateDirTarget, self).__init__(parent, name, index, icon, filepath)
+    def __init__(self, parent, widget_type, name, index, icon, filepath):
+        super(CreateDirTarget, self).__init__(parent, widget_type, name, index, icon, filepath)
         self.actions = [
-            ('Paste', self.onPasteFromClipboard),
-            ('Open...', self.onFileOpen)
+            ('Process Clipboard', self.onPasteFromClipboard),
+            ('Process File...', self.onFileOpen)
         ]
 
     def onFileOpen(self):
@@ -283,7 +281,7 @@ class CreateDirTarget(DropWidget):
             if not icon_filepath:
                 icon_filepath = join(config.ASSETS_DIR, 'downloads.png')
             settings.pushItem({
-                "type": "dir",
+                "type": self.type,
                 "name": name,
                 "path": context,
                 "icon": icon_filepath
