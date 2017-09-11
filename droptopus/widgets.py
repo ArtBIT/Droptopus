@@ -7,6 +7,7 @@ import math
 import tempfile
 import subprocess
 import config
+import logging
 import settings
 import utils
 
@@ -31,6 +32,7 @@ re_url = re.compile(
 
 class IconWidget(QtGui.QWidget):
     def __init__(self, parent, icon, width=48, height=48):
+        logging.info('Creating IconWidget with icon: %s', icon)
         super(IconWidget, self).__init__(parent)
         self.pixmap = QtGui.QPixmap(icon).scaled(width, height, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
         self.setFixedWidth(width)
@@ -383,6 +385,7 @@ class DropTargetGrid(QtGui.QWidget):
 
 
     def reload(self):
+        logging.info('Reloading grid items')
         layout = self.grid_layout;
         utils.clearLayout(layout)
         items = settings.readItems()
@@ -402,6 +405,7 @@ class DropTargetGrid(QtGui.QWidget):
 
 
     def instantiateWidget(self, widget_info, index = None):
+        logging.info('Instantiating item { index: %s, type: %s, name: %s, path: %s, icon: %s }', index, widget_info['type'], widget_info['name'], widget_info['path'], widget_info['icon']) 
         m = sys.modules[__name__] # current module
         widget_classes = {
             "dir": getattr(m, 'DirTarget'), 

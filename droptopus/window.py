@@ -133,6 +133,7 @@ class MainWindow(QtGui.QMainWindow):
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.Tool)
         self.setAttribute(QtCore.Qt.WA_NoSystemBackground, True)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground, True)
+        self.setAttribute(QtCore.Qt.WA_QuitOnClose)
         self.setWindowIcon(QtGui.QIcon(join(config.ASSETS_DIR, 'droptopus.png')))
         self.setWindowTitle("Droptopus")
 

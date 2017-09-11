@@ -1,5 +1,6 @@
 import config
 from PyQt4 import QtGui, QtCore 
+
 QtCore.QCoreApplication.setOrganizationName(config.ORG_NAME);
 QtCore.QCoreApplication.setOrganizationDomain(config.ORG_DOMAIN);
 QtCore.QCoreApplication.setApplicationName(config.APP_NAME);

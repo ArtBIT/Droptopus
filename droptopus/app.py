@@ -2,12 +2,16 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import sys
 import config
+import logging
 import settings
 from window import MainWindow
+
+logging.basicConfig(format='%(asctime)s | %(message)s', filename='debug.log', level=logging.INFO)
 
 class App(QApplication):
 
   def __init__(self, args=None):
+    logging.info('Initializing Droptopus App')
     super(App, self).__init__([config.APP_NAME])
     css = """
     MiniWindow,
