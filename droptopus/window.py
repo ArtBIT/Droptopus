@@ -213,6 +213,7 @@ class DarkDialog(QtGui.QDialog):
         #self.setAutoFillBackground(True)
         #self.setBackgroundRole(QtGui.QPalette.Highlight)
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.Tool)
+        self.setAttribute(QtCore.Qt.WA_TranslucentBackground, True)
         #self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.setMouseTracking(True)
         self.is_move_action = False
@@ -235,6 +236,12 @@ class DarkDialog(QtGui.QDialog):
         x_w = self.offset.x()
         y_w = self.offset.y()
         self.move(x-x_w, y-y_w)
+
+    def paintEvent(self, event):
+        opt = QtGui.QStyleOption()
+        opt.init(self)
+        painter = QtGui.QPainter(self)
+        self.style().drawPrimitive(QtGui.QStyle.PE_Widget, opt, painter, self)
 
 
 class AboutDialog(DarkDialog):

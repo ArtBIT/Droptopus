@@ -50,12 +50,10 @@ class App(QApplication):
         font:13px ;
         font-weight:bold;
     }
+    AboutDialog,
     DropTitleBar,
     DropFrame {
         border-radius: 10px;
-    }
-    AboutDialog {
-        border: 1px solid rgba(255,255,255,10%);
     }
     AboutDialog QPushButton {
         background-color: gray;
