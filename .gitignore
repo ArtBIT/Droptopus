@@ -13,3 +13,5 @@
 /*.egg
 
 debug.log
+MANIFEST.in
+setup.py
