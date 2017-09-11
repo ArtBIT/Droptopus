@@ -1,6 +1,6 @@
 import re
 import unicodedata
-from PyQt4 import QtGui
+from PyQt4.QtGui import QApplication
 
 def slugify(value):
     """
@@ -26,7 +26,7 @@ def clearLayout(layout):
 def propagateEvent(self, evt):
     # QEvent.accepted is True by default
     evt.setAccepted(False)
-    app = QtGui.QApplication.instance()
+    app = QApplication.instance()
     target = self.parent()
     while target:
         app.sendEvent(target, evt)

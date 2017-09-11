@@ -1,10 +1,9 @@
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
 import sys
 import config
 import logging
 import settings
 from window import MainWindow
+from PyQt4.QtGui import QApplication
 
 logging.basicConfig(format='%(asctime)s | %(message)s', filename='debug.log', level=logging.INFO)
 

@@ -18,9 +18,43 @@ from forms import EditItemForm
 
 from PyQt4 import QtGui, QtCore
 
-EVENT_RELOAD_WIDGETS = QtCore.QEvent.registerEventType(1337);
-EVENT_COLLAPSE_WINDOW = QtCore.QEvent.registerEventType(1338);
-EVENT_CLOSE_WINDOW = QtCore.QEvent.registerEventType(1339);
+from PyQt4.QtCore import (
+    QEvent,
+    QSettings,
+    QSize,
+    Qt,
+)
+from PyQt4.QtGui import (
+    QApplication,
+    QDialog,
+    QDialogButtonBox,
+    QFileDialog,
+    QFormLayout,
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QIcon,
+    QInputDialog,
+    QLabel,
+    QLineEdit,
+    QMenu,
+    QMessageBox,
+    QPainter,
+    QPalette,
+    QPixmap,
+    QPushButton,
+    QSizePolicy,
+    QSizePolicy,
+    QStyle,
+    QStyleOption,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+)
+
+EVENT_RELOAD_WIDGETS = QEvent.registerEventType(1337);
+EVENT_COLLAPSE_WINDOW = QEvent.registerEventType(1338);
+EVENT_CLOSE_WINDOW = QEvent.registerEventType(1339);
 
 re_url = re.compile(
         r'^(?:(?:http|ftp)s?://)?' # http:// or https://
@@ -30,19 +64,19 @@ re_url = re.compile(
         r'(?::\d+)?' # optional port
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
 
-class IconWidget(QtGui.QWidget):
+class IconWidget(QWidget):
     def __init__(self, parent, icon, width=48, height=48):
         logging.info('Creating IconWidget with icon: %s', icon)
         super(IconWidget, self).__init__(parent)
-        self.pixmap = QtGui.QPixmap(icon).scaled(width, height, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+        self.pixmap = QPixmap(icon).scaled(width, height, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.setFixedWidth(width)
         self.setFixedHeight(height)
 
     def paintEvent(self, event):
-        painter = QtGui.QPainter(self)
+        painter = QPainter(self)
         painter.drawPixmap(event.rect(), self.pixmap)
 
-class BaseDropWidget(QtGui.QWidget):
+class BaseDropWidget(QWidget):
     def __init__(self, parent, name, index, icon):
         super(BaseDropWidget, self).__init__(parent)
         self.setAcceptDrops(True)
@@ -54,20 +88,20 @@ class BaseDropWidget(QtGui.QWidget):
         self.index = index
         self.iconpath = icon
         self.icon = IconWidget(self, icon)
-        label = QtGui.QLabel()
+        label = QLabel()
         label.setText(name)
-        label.setAlignment(QtCore.Qt.AlignCenter)
-        label.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Expanding);
+        label.setAlignment(Qt.AlignCenter)
+        label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding);
         label.setMaximumWidth(width)
         label.setWordWrap(True)
         self.label = label
-        layout = QtGui.QVBoxLayout()
+        layout = QVBoxLayout()
         layout.addWidget(self.icon)
-        layout.setAlignment(self.icon, QtCore.Qt.AlignCenter)
+        layout.setAlignment(self.icon, Qt.AlignCenter)
         layout.addWidget(self.label)
-        layout.setAlignment(self.label, QtCore.Qt.AlignCenter)
+        layout.setAlignment(self.label, Qt.AlignCenter)
         self.setLayout(layout)
-        self.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Expanding);
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding);
         self.setFixedWidth(width)
         #self.setFixedSize(width,height)
 
@@ -110,21 +144,21 @@ class BaseDropWidget(QtGui.QWidget):
                 url = str(url.toString())
                 self.handle(url)
 
-        utils.propagateEvent(self, QtCore.QEvent(EVENT_COLLAPSE_WINDOW));
-        QtGui.QWidget.dropEvent(self, event)
+        utils.propagateEvent(self, QEvent(EVENT_COLLAPSE_WINDOW));
+        QWidget.dropEvent(self, event)
     
     # Have to override this so that QWidget subclasses
     # can update the background via qss
     def paintEvent(self, event):
-        opt = QtGui.QStyleOption()
+        opt = QStyleOption()
         opt.init(self)
-        painter = QtGui.QPainter(self)
-        self.style().drawPrimitive(QtGui.QStyle.PE_Widget, opt, painter, self)
+        painter = QPainter(self)
+        self.style().drawPrimitive(QStyle.PE_Widget, opt, painter, self)
 
 class DropWidget(BaseDropWidget):
     def __init__(self, parent, widget_type, name, index, icon, filepath):
         super(DropWidget, self).__init__(parent, name, index, icon)
-        self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
+        self.setAttribute(Qt.WA_OpaquePaintEvent)
         self.type = widget_type
         self.filepath = filepath
         self.actions = [
@@ -168,7 +202,7 @@ class DropWidget(BaseDropWidget):
         # so we have to have a flag to prevent it
         self.in_context_menu = True
         self.setStyleProperty('hover', True)
-        menu = QtGui.QMenu(self)
+        menu = QMenu(self)
         actions = {}
         for k, v in self.actions:
             if k == '--':
@@ -194,21 +228,21 @@ class DropWidget(BaseDropWidget):
         form = EditItemForm(item, self)
         form.setModal(True)
         form.exec_()
-        utils.propagateEvent(self, QtCore.QEvent(EVENT_RELOAD_WIDGETS));
+        utils.propagateEvent(self, QEvent(EVENT_RELOAD_WIDGETS));
 
     def onDelete(self):
-        reply = QtGui.QMessageBox.question(self, 'Message', 'Are you sure you want to delete this action?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-        if reply == QtGui.QMessageBox.Yes:
+        reply = QMessageBox.question(self, 'Message', 'Are you sure you want to delete this action?', QMessageBox.Yes, QMessageBox.No)
+        if reply == QMessageBox.Yes:
             settings.removeItem(self.index)
-            utils.propagateEvent(self, QtCore.QEvent(EVENT_RELOAD_WIDGETS));
+            utils.propagateEvent(self, QEvent(EVENT_RELOAD_WIDGETS));
 
     def onFileOpen(self):
         myhome = expanduser("~")
-        fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file', myhome)
+        fname = QFileDialog.getOpenFileName(self, 'Open file', myhome)
         self.handle(fname)
 
     def onPasteFromClipboard(self):
-        clipboard = QtGui.QApplication.instance().clipboard()
+        clipboard = QApplication.instance().clipboard()
         self.handle(clipboard.text())
 
 
@@ -252,13 +286,13 @@ class CreateFileTarget(DropWidget):
     def handle(self, context):
         context = unicode(context.toUtf8(), encoding="UTF-8")
         name = os.path.basename(context)
-        name, ok = QtGui.QInputDialog.getText(self, "Enter the name for the new action", "Action name:", QtGui.QLineEdit.Normal, name)
+        name, ok = QInputDialog.getText(self, "Enter the name for the new action", "Action name:", QLineEdit.Normal, name)
         #name = unicode(name, encoding="UTF-8").strip()
         if ok and name:
             if not isfile(context):
-                return QtGui.QMessageBox.critical(self, 'Error', 'Target action must be a local file.', QtGui.QMessageBox.Ok)
+                return QMessageBox.critical(self, 'Error', 'Target action must be a local file.', QMessageBox.Ok)
 
-            icon_filepath = QtGui.QFileDialog.getOpenFileName(self, 'Choose Icon', config.ASSETS_DIR)
+            icon_filepath = QFileDialog.getOpenFileName(self, 'Choose Icon', config.ASSETS_DIR)
             if not icon_filepath:
                 icon_filepath = join(config.ASSETS_DIR, 'downloads.png')
             settings.pushItem({
@@ -267,7 +301,7 @@ class CreateFileTarget(DropWidget):
                 "path": context,
                 "icon": icon_filepath
             })
-            return utils.propagateEvent(self, QtCore.QEvent(EVENT_RELOAD_WIDGETS));
+            return utils.propagateEvent(self, QEvent(EVENT_RELOAD_WIDGETS));
 
     def mouseDoubleClickEvent(self, event):
         self.onFileOpen()
@@ -282,19 +316,19 @@ class CreateDirTarget(DropWidget):
 
     def onFileOpen(self):
         myhome = expanduser("~")
-        fname = QtGui.QFileDialog.getExistingDirectory(self, 'Choose a directory', myhome)
+        fname = QFileDialog.getExistingDirectory(self, 'Choose a directory', myhome)
         self.handle(fname)
 
     def handle(self, context):
         context = unicode(context.toUtf8(), encoding="UTF-8")
         name = os.path.basename(context)
-        name, ok = QtGui.QInputDialog.getText(self, "Enter the name for the new action", "Action name:", QtGui.QLineEdit.Normal, name)
+        name, ok = QInputDialog.getText(self, "Enter the name for the new action", "Action name:", QLineEdit.Normal, name)
         #name = unicode(name, encoding="UTF-8").strip()
         if ok and name:
             if not isdir(context):
-                return QtGui.QMessageBox.critical(self, 'Error', 'Target should be a local directory.', QtGui.QMessageBox.Ok)
+                return QMessageBox.critical(self, 'Error', 'Target should be a local directory.', QMessageBox.Ok)
 
-            icon_filepath = QtGui.QFileDialog.getOpenFileName(self, 'Choose Icon', config.ASSETS_DIR)
+            icon_filepath = QFileDialog.getOpenFileName(self, 'Choose Icon', config.ASSETS_DIR)
             if not icon_filepath:
                 icon_filepath = join(config.ASSETS_DIR, 'downloads.png')
             settings.pushItem({
@@ -303,43 +337,43 @@ class CreateDirTarget(DropWidget):
                 "path": context,
                 "icon": icon_filepath
             })
-            return utils.propagateEvent(self, QtCore.QEvent(EVENT_RELOAD_WIDGETS));
+            return utils.propagateEvent(self, QEvent(EVENT_RELOAD_WIDGETS));
 
     def mouseDoubleClickEvent(self, event):
         self.onFileOpen()
 
 
-class DropTitleBar(QtGui.QDialog):
+class DropTitleBar(QDialog):
     def __init__(self, parent, title):
-        QtGui.QWidget.__init__(self, parent)
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        QWidget.__init__(self, parent)
+        self.setWindowFlags(Qt.FramelessWindowHint)
         self.setAutoFillBackground(True)
-        self.setBackgroundRole(QtGui.QPalette.Highlight)
+        self.setBackgroundRole(QPalette.Highlight)
 
-        minmax = QtGui.QToolButton(self)
-        minmax.setIcon(QtGui.QIcon(join(config.ASSETS_DIR, 'minimize_window_white.png')))
+        minmax = QToolButton(self)
+        minmax.setIcon(QIcon(join(config.ASSETS_DIR, 'minimize_window_white.png')))
         minmax.setMinimumHeight(10)
         minmax.setWindowOpacity(0.5)
         minmax.clicked.connect(self.minimax)
-        minmax.setAttribute(QtCore.Qt.WA_MacShowFocusRect, 0)
+        minmax.setAttribute(Qt.WA_MacShowFocusRect, 0)
 
-        close=QtGui.QToolButton(self)
-        close.setIcon(QtGui.QIcon(join(config.ASSETS_DIR, 'close_window_white.png')))
+        close=QToolButton(self)
+        close.setIcon(QIcon(join(config.ASSETS_DIR, 'close_window_white.png')))
         close.setMinimumHeight(10)
         close.setWindowOpacity(0.5)
         close.clicked.connect(self.close)
-        close.setAttribute(QtCore.Qt.WA_MacShowFocusRect, 0)
+        close.setAttribute(Qt.WA_MacShowFocusRect, 0)
 
-        self.label=QtGui.QLabel(self)
+        self.label=QLabel(self)
         self.label.setText(title)
 
-        hbox = QtGui.QHBoxLayout(self)
+        hbox = QHBoxLayout(self)
         hbox.addWidget(self.label)
         hbox.addWidget(minmax)
         hbox.addWidget(close)
         hbox.insertStretch(1,500)
         hbox.setSpacing(0)
-        self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
     def contextMenuEvent(self, event):
         self.parent().contextMenuEvent(event)
@@ -348,33 +382,33 @@ class DropTitleBar(QtGui.QDialog):
         self.label.setText(title)
 
     def minimax(self):
-        utils.propagateEvent(self, QtCore.QEvent(EVENT_COLLAPSE_WINDOW));
+        utils.propagateEvent(self, QEvent(EVENT_COLLAPSE_WINDOW));
 
     def close(self):
-        utils.propagateEvent(self, QtCore.QEvent(EVENT_CLOSE_WINDOW));
+        utils.propagateEvent(self, QEvent(EVENT_CLOSE_WINDOW));
 
     def reject(self):
         print "" #do not close on escape
 
-class DropTargetGrid(QtGui.QWidget):
+class DropTargetGrid(QWidget):
     def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
+        QWidget.__init__(self, parent)
         self.init_layout()
-        self.settings = QtCore.QSettings()
+        self.settings = QSettings()
         self.reload()
 
     def init_layout(self):
-        layout = QtGui.QHBoxLayout(self)
-        sidebar_layout = QtGui.QVBoxLayout()
+        layout = QHBoxLayout(self)
+        sidebar_layout = QVBoxLayout()
         sidebar_layout.addWidget(self.instantiateWidget({"type":"create_dir", "name": "Add Directory", "path": "", "icon": join(config.ASSETS_DIR, 'add_folder.png')}))
         sidebar_layout.addWidget(self.instantiateWidget({"type":"create_file", "name": "Add Executable", "path": "", "icon": join(config.ASSETS_DIR, 'add_file.png')}))
         sidebar_layout.addStretch()
         layout.addLayout(sidebar_layout)
-        vline = QtGui.QFrame()
-        vline.setFrameShape(QtGui.QFrame.VLine)
-        vline.setFrameShadow(QtGui.QFrame.Plain)
+        vline = QFrame()
+        vline.setFrameShape(QFrame.VLine)
+        vline.setFrameShadow(QFrame.Plain)
         layout.addWidget(vline)
-        self.grid_layout = QtGui.QGridLayout()
+        self.grid_layout = QGridLayout()
         layout.addLayout(self.grid_layout)
 
     def event(self, evt):
@@ -417,15 +451,15 @@ class DropTargetGrid(QtGui.QWidget):
         widget = widget_class(self, widget_info['type'], widget_info['name'], index, widget_info['icon'], widget_info['path'])
         return widget
 
-class DropFrame(QtGui.QFrame):
+class DropFrame(QFrame):
     def __init__(self, parent=None):
-        QtGui.QFrame.__init__(self, parent)
-        self.setFrameShape(QtGui.QFrame.StyledPanel)
+        QFrame.__init__(self, parent)
+        self.setFrameShape(QFrame.StyledPanel)
 
         self.titlebar = DropTitleBar(self, "Droptopus")
         self.content = DropTargetGrid(self)
 
-        vbox = QtGui.QVBoxLayout(self)
+        vbox = QVBoxLayout(self)
         vbox.addWidget(self.titlebar)
         vbox.addWidget(self.content)
         vbox.setMargin(0)
@@ -434,7 +468,7 @@ class DropFrame(QtGui.QFrame):
 
     def sizeHint(self):
         tbs = self.titlebar.sizeHint()
-        return QtCore.QSize(tbs.width(), tbs.height()).__add__(self.content.sizeHint())
+        return QSize(tbs.width(), tbs.height()).__add__(self.content.sizeHint())
 
     def reload(self):
         self.content.reload()

@@ -1,11 +1,11 @@
 import config
-from PyQt4 import QtGui, QtCore 
+from PyQt4.QtCore import QCoreApplication, QSettings
 
-QtCore.QCoreApplication.setOrganizationName(config.ORG_NAME);
-QtCore.QCoreApplication.setOrganizationDomain(config.ORG_DOMAIN);
-QtCore.QCoreApplication.setApplicationName(config.APP_NAME);
+QCoreApplication.setOrganizationName(config.ORG_NAME);
+QCoreApplication.setOrganizationDomain(config.ORG_DOMAIN);
+QCoreApplication.setApplicationName(config.APP_NAME);
 
-settings = QtCore.QSettings()
+settings = QSettings()
 def writeItems(items):
     s = settings
     s.remove("items")
