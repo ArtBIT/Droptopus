@@ -3,7 +3,7 @@ import config
 import logging
 import settings
 from window import MainWindow
-from PyQt4.QtGui import QApplication
+from PyQt5.QtWidgets import QApplication
 
 logging.basicConfig(format='%(asctime)s | %(message)s', filename='debug.log', level=logging.INFO)
 

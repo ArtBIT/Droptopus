@@ -2,7 +2,7 @@
 *.pyc
 
 # Environment dir
-.env
+env
 
 # Setuptools distribution folder.
 /dist/

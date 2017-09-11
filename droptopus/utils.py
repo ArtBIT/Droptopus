@@ -1,6 +1,6 @@
 import re
 import unicodedata
-from PyQt4.QtGui import QApplication
+from PyQt5.QtWidgets import QApplication
 
 def slugify(value):
     """

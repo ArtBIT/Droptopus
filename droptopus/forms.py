@@ -1,8 +1,8 @@
 import os
 import config
 import settings
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import (
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QFileDialog,
@@ -11,8 +11,10 @@ from PyQt4.QtGui import (
     QLabel,
     QLineEdit,
     QMessageBox,
-    QPixmap,
     QPushButton,
+)
+from PyQt5.QtGui import (
+    QPixmap,
 )
 
 class EditItemForm(QDialog):
