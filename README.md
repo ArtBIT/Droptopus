@@ -40,5 +40,5 @@ This project uses awesome icons from [http://icons8.com](Icons8)
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE.md file for details
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
