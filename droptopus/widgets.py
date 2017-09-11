@@ -41,6 +41,7 @@ class BaseDropWidget(QtGui.QWidget):
     def __init__(self, parent, name, index, icon):
         super(BaseDropWidget, self).__init__(parent)
         self.setAcceptDrops(True)
+        self.in_context_menu = False
 
         width = 100
         height = 100
@@ -86,13 +87,11 @@ class BaseDropWidget(QtGui.QWidget):
         self.setProperty(prop, value)
         self.style().unpolish(self)
         self.style().polish(self)
-        self.update()
 
     def dragLeaveEvent(self, event):
         self.setStyleProperty("draggedOver", False);
 
     def dragEnterEvent(self, event):
-        print event
         self.setStyleProperty("draggedOver", True);
         if event.mimeData().hasUrls():
             event.accept()
@@ -111,10 +110,19 @@ class BaseDropWidget(QtGui.QWidget):
                 url = str(url.toString())
                 self.handle(url)
         QtGui.QWidget.dropEvent(self, event)
+    
+    # Have to override this so that QWidget subclasses
+    # can update the background via qss
+    def paintEvent(self, event):
+        opt = QtGui.QStyleOption()
+        opt.init(self)
+        painter = QtGui.QPainter(self)
+        self.style().drawPrimitive(QtGui.QStyle.PE_Widget, opt, painter, self)
 
 class DropWidget(BaseDropWidget):
     def __init__(self, parent, widget_type, name, index, icon, filepath):
         super(DropWidget, self).__init__(parent, name, index, icon)
+        self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
         self.type = widget_type
         self.filepath = filepath
         self.actions = [
@@ -143,10 +151,21 @@ class DropWidget(BaseDropWidget):
         elif os.name == 'posix':
             subprocess.call(('xdg-open', self.filepath))
 
+    def enterEvent(self,event):
+        self.setStyleProperty('hover', True)
+
+    def leaveEvent(self,event):
+        if self.in_context_menu:
+            return
+        self.setStyleProperty('hover', False)
+
     def contextMenuEvent(self, event):
         if not self.actions:
             return
-
+        # context menu happens before leaveEvent
+        # so we have to have a flag to prevent it
+        self.in_context_menu = True
+        self.setStyleProperty('hover', True)
         menu = QtGui.QMenu(self)
         actions = {}
         for k, v in self.actions:
@@ -159,6 +178,8 @@ class DropWidget(BaseDropWidget):
         action = menu.exec_(self.mapToGlobal(event.pos()))
         if action in actions:
             actions[action]()
+        self.setStyleProperty('hover', False)
+        self.in_context_menu = False
 
     def onEdit(self):
         item = {

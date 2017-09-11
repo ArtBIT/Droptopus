@@ -66,12 +66,16 @@ class App(QApplication):
     }
     AboutDialog QWidget {
     }
-    DropWidget[draggedOver=True] {
-        Background: rgba(0,0,0,70%);
-    }
     QFrame[frameShape="4"], /* QFrame::HLine == 0x0004 */
     QFrame[frameShape="5"]  /* QFrame::VLine == 0x0005 */
     {
+    }
+    DropWidget {
+        background-color: rgba(0,0,0,0%);
+    }
+    DropWidget[draggedOver=true],
+    DropWidget[hover=true] {
+        background-color: rgba(0,0,0,50%);
     }
     """
     self.setStyleSheet(css) 
