@@ -16,8 +16,7 @@ import settings
 import utils
 import __version__
 
-from widgets import IconWidget, DirTarget, FileTarget, CreateFileTarget, CreateDirTarget, DropFrame
-from widgets import EVENT_COLLAPSE_WINDOW, EVENT_CLOSE_WINDOW
+from widgets import DropFrame, EVENT_COLLAPSE_WINDOW, EVENT_CLOSE_WINDOW
 
 from PyQt5.QtGui import (
     QIcon,

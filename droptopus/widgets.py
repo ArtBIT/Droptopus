@@ -274,16 +274,20 @@ class FileTarget(DropWidget):
     def handle_url(self, url):
         subprocess.call([self.filepath, url])
 
-class CreateFileTarget(DropWidget):
+class CreateTarget(DropWidget):
     def __init__(self, parent, widget_type, name, index, icon, filepath):
-        super(CreateFileTarget, self).__init__(parent, widget_type, name, index, icon, filepath)
+        super(CreateTarget, self).__init__(parent, 'builtin', name, index, icon, filepath)
         self.actions = [
-            ('Process Clipboard', self.onPasteFromClipboard),
-            ('Process File...', self.onFileOpen)
+            ('Create Folder Action...', self.onCreateFolderAction),
+            ('Create Executable Action...', self.onCreateFileAction),
+            ('Create From Template...', self.onCreateFromTemplate),
         ]
 
-    def handle(self, context):
+    def onCreateFileAction(self):
+        context, _filter = QFileDialog.getOpenFileName(self, 'Open file', expanduser('~'))
         context = str(context)
+        if not context:
+            return
         logging.info('Create file target: %s', context)
         name = os.path.basename(context)
         name, ok = QInputDialog.getText(self, "Enter the name for the new action", "Action name:", QLineEdit.Normal, name)
@@ -302,24 +306,11 @@ class CreateFileTarget(DropWidget):
             })
             return utils.propagateEvent(self, QEvent(EVENT_RELOAD_WIDGETS));
 
-    def mouseDoubleClickEvent(self, event):
-        self.onFileOpen()
-
-class CreateDirTarget(DropWidget):
-    def __init__(self, parent, widget_type, name, index, icon, filepath):
-        super(CreateDirTarget, self).__init__(parent, widget_type, name, index, icon, filepath)
-        self.actions = [
-            ('Process Clipboard', self.onPasteFromClipboard),
-            ('Process File...', self.onFileOpen)
-        ]
-
-    def onFileOpen(self):
-        myhome = expanduser("~")
-        fname, _filter = QFileDialog.getExistingDirectory(self, 'Choose a directory', myhome)
-        self.handle(fname)
-
-    def handle(self, context):
+    def onCreateFolderAction(self):
+        context = QFileDialog.getExistingDirectory(self, 'Choose a directory', expanduser('~'))
         context = str(context)
+        if not context:
+            return
         name = os.path.basename(context)
         name, ok = QInputDialog.getText(self, "Enter the name for the new action", "Action name:", QLineEdit.Normal, name)
         if ok and name:
@@ -337,8 +328,19 @@ class CreateDirTarget(DropWidget):
             })
             return utils.propagateEvent(self, QEvent(EVENT_RELOAD_WIDGETS));
 
+    def onCreateFromTemplate(self):
+        print("yay")
+        return 
+
+    def mousePressEvent(self, event):
+        self.contextMenuEvent(event)
+
     def mouseDoubleClickEvent(self, event):
-        self.onFileOpen()
+        return 
+
+    def handle(self, context):
+        return
+
 
 
 class DropTitleBar(QDialog):
@@ -391,23 +393,9 @@ class DropTitleBar(QDialog):
 class DropTargetGrid(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
-        self.init_layout()
+        self.grid_layout = QGridLayout(self)
         self.settings = QSettings()
         self.reload()
-
-    def init_layout(self):
-        layout = QHBoxLayout(self)
-        sidebar_layout = QVBoxLayout()
-        sidebar_layout.addWidget(self.instantiateWidget({"type":"create_dir", "name": "Add Directory", "path": "", "icon": join(config.ASSETS_DIR, 'add_folder.png')}))
-        sidebar_layout.addWidget(self.instantiateWidget({"type":"create_file", "name": "Add Executable", "path": "", "icon": join(config.ASSETS_DIR, 'add_file.png')}))
-        sidebar_layout.addStretch()
-        layout.addLayout(sidebar_layout)
-        vline = QFrame()
-        vline.setFrameShape(QFrame.VLine)
-        vline.setFrameShadow(QFrame.Plain)
-        layout.addWidget(vline)
-        self.grid_layout = QGridLayout()
-        layout.addLayout(self.grid_layout)
 
     def event(self, evt):
         if evt.type() == EVENT_RELOAD_WIDGETS:
@@ -421,15 +409,13 @@ class DropTargetGrid(QWidget):
         layout = self.grid_layout;
         utils.clearLayout(layout)
         items = settings.readItems()
+        items.insert(0, {"type":"builtin", "name": "Create Action", "path": "", "icon": join(config.ASSETS_DIR, 'plus_white.png')})
         total_items = len(items)
-        if total_items == 0:
-            return
         root = math.sqrt(total_items)
         rows = int(root)
         if rows == 0:
             rows = 1
         cols = int(total_items/rows) + 1
-        settings.writeItems(items)
 
         item_idx = 0
         for j in range(rows):
@@ -446,8 +432,7 @@ class DropTargetGrid(QWidget):
         widget_classes = {
             "dir": getattr(m, 'DirTarget'), 
             "file": getattr(m, 'FileTarget'),
-            "create_file": getattr(m, 'CreateFileTarget'),
-            "create_dir": getattr(m, 'CreateDirTarget')
+            "builtin": getattr(m, 'CreateTarget'),
         }
         widget_class = widget_classes[widget_info['type']]
         widget = widget_class(self, widget_info['type'], widget_info['name'], index, widget_info['icon'], widget_info['path'])
