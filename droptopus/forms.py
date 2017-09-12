@@ -77,7 +77,7 @@ class EditItemForm(QDialog):
     def onChangePath(self):
         path = self.item["path"] if len(self.item["path"]) else os.path.expanduser("~")
         if self.item["type"] == "dir":
-            path, _filter = QFileDialog.getExistingDirectory(self, 'Choose a directory', path)
+            path = QFileDialog.getExistingDirectory(self, 'Choose a directory', path)
             if path:
                 self.path.setText(path)
                 self.item["path"] = path
@@ -90,12 +90,11 @@ class EditItemForm(QDialog):
     def validate(self):
         return True 
 
-    def hideEvent(self, event):
+    def accept(self):
         if not self.validate():
             QMessageBox.critical(self, 'Error', "\n".join(self.validation_errors), QMessageBox.Ok)
-            event.ignore()
             return
 
         self.item['name'] = self.name.text()
         settings.writeItem(self.item)
-        event.accept()
+        self.close()

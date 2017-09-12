@@ -77,7 +77,7 @@ class MiniWindow(QWidget):
 class DarkDialog(QDialog):
     def __init__(self, parent):
         super(DarkDialog, self).__init__(parent)
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool | Qt.WA_MacAlwaysShowToolWindow )
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setMouseTracking(True)
         self.is_move_action = False
@@ -217,6 +217,21 @@ class MainWindow(QMainWindow):
         self.resize(expanded)
         self.content.setCurrentWidget(self.frame)
         self.content.show()
+
+        # on OSX the window will not automatically stay inside the screen like on Linux
+        # we have to do it manually
+        screen_rect = QDesktopWidget().screenGeometry()
+        window_rect = self.frameGeometry()
+        intersection = window_rect & screen_rect
+        dx = window_rect.width() - intersection.width()
+        dy = window_rect.height() - intersection.height()
+        unseen = window_rect & intersection
+        if dx != 0 or dy != 0:
+            if window_rect.left() > screen_rect.left():
+                dx = dx * -1
+            if window_rect.bottom() > screen_rect.bottom():
+                dy = dy * -1
+            self.move(window_rect.left() + dx, window_rect.top() + dy)
 
     def collapse(self):
         if not self.is_expanded:

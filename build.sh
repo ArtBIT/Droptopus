@@ -1,7 +1,7 @@
 #!/bin/bash
 pyinstaller \
     --onefile \
-    --nowindow \
+    --windowed \
     --noconfirm \
     --log-level=WARN \
     --add-data="README.md:." \
