@@ -105,7 +105,7 @@ class BaseDropWidget(QWidget):
         #self.setFixedSize(width,height)
 
     def handle(self, context):
-        context = str(context).encode('utf-8')
+        context = str(context)
         return context
 
     def setStyleProperty(self, prop, value):
@@ -140,7 +140,7 @@ class BaseDropWidget(QWidget):
         elif event.mimeData().hasUrls():
             event.accept()
             for url in event.mimeData().urls():
-                url = str(url.toString())
+                url = str(url)
                 self.handle(url)
 
         utils.propagateEvent(self, QEvent(EVENT_COLLAPSE_WINDOW));
@@ -283,7 +283,7 @@ class CreateFileTarget(DropWidget):
         ]
 
     def handle(self, context):
-        context = str(context).encode('utf-8')
+        context = str(context)
         name = os.path.basename(context)
         name, ok = QInputDialog.getText(self, "Enter the name for the new action", "Action name:", QLineEdit.Normal, name)
         if ok and name:
@@ -318,7 +318,7 @@ class CreateDirTarget(DropWidget):
         self.handle(fname)
 
     def handle(self, context):
-        context = str(context).encode('utf-8')
+        context = str(context)
         name = os.path.basename(context)
         name, ok = QInputDialog.getText(self, "Enter the name for the new action", "Action name:", QLineEdit.Normal, name)
         if ok and name:
