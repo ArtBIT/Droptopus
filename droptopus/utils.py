@@ -8,8 +8,8 @@ def slugify(value):
     and converts spaces to hyphens.
     """
     value = unicodedata.normalize('NFKD', unicode(value)).encode('ascii', 'ignore')
-    value = unicode(re.sub('[^\w\s-]', '', value).strip().lower())
-    value = unicode(re.sub('[-\s]+', '-', value))
+    value = str(re.sub('[^\w\s-]', '', value).strip().lower(), 'utf-8')
+    value = str(re.sub('[-\s]+', '-', value), 'utf-8')
     return value
 
 # Remove all items from the layout

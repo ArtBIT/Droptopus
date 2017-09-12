@@ -105,7 +105,7 @@ class BaseDropWidget(QWidget):
         #self.setFixedSize(width,height)
 
     def handle(self, context):
-        context = unicode(context.toUtf8(), encoding="UTF-8")
+        context = str(context).encode('utf-8')
         return context
 
     def setStyleProperty(self, prop, value):
@@ -283,10 +283,9 @@ class CreateFileTarget(DropWidget):
         ]
 
     def handle(self, context):
-        context = unicode(context.toUtf8(), encoding="UTF-8")
+        context = str(context).encode('utf-8')
         name = os.path.basename(context)
         name, ok = QInputDialog.getText(self, "Enter the name for the new action", "Action name:", QLineEdit.Normal, name)
-        #name = unicode(name, encoding="UTF-8").strip()
         if ok and name:
             if not isfile(context):
                 return QMessageBox.critical(self, 'Error', 'Target action must be a local file.', QMessageBox.Ok)
@@ -319,10 +318,9 @@ class CreateDirTarget(DropWidget):
         self.handle(fname)
 
     def handle(self, context):
-        context = unicode(context.toUtf8(), encoding="UTF-8")
+        context = str(context).encode('utf-8')
         name = os.path.basename(context)
         name, ok = QInputDialog.getText(self, "Enter the name for the new action", "Action name:", QLineEdit.Normal, name)
-        #name = unicode(name, encoding="UTF-8").strip()
         if ok and name:
             if not isdir(context):
                 return QMessageBox.critical(self, 'Error', 'Target should be a local directory.', QMessageBox.Ok)
@@ -423,8 +421,12 @@ class DropTargetGrid(QWidget):
         utils.clearLayout(layout)
         items = settings.readItems()
         total_items = len(items)
+        if total_items == 0:
+            return
         root = math.sqrt(total_items)
         rows = int(root)
+        if rows == 0:
+            rows = 1
         cols = int(total_items/rows) + 1
         settings.writeItems(items)
 
