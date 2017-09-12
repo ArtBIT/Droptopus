@@ -51,9 +51,12 @@ from PyQt5.QtGui import (
     QPalette,
 )
 
-EVENT_RELOAD_WIDGETS = QEvent.registerEventType(1337);
-EVENT_COLLAPSE_WINDOW = QEvent.registerEventType(1338);
-EVENT_CLOSE_WINDOW = QEvent.registerEventType(1339);
+events = utils.dotdict({
+    "RELOAD_WIDGETS": QEvent.registerEventType(1337),
+    "COLLAPSE_WINDOW": QEvent.registerEventType(1338),
+    "EXPAND_WINDOW": QEvent.registerEventType(1339),
+    "CLOSE_WINDOW": QEvent.registerEventType(1340),
+})
 
 re_url = re.compile(
         r'^(?:(?:http|ftp)s?://)?' # http:// or https://
@@ -143,7 +146,7 @@ class BaseDropWidget(QWidget):
                 url = str(url)
                 self.handle(url)
 
-        utils.propagateEvent(self, QEvent(EVENT_COLLAPSE_WINDOW));
+        utils.propagateEvent(self, QEvent(events.COLLAPSE_WINDOW));
         QWidget.dropEvent(self, event)
     
     # Have to override this so that QWidget subclasses
@@ -227,13 +230,13 @@ class DropWidget(BaseDropWidget):
         form = EditItemForm(item, self)
         form.setModal(True)
         form.exec_()
-        utils.propagateEvent(self, QEvent(EVENT_RELOAD_WIDGETS));
+        utils.propagateEvent(self, QEvent(events.RELOAD_WIDGETS));
 
     def onDelete(self):
         reply = QMessageBox.question(self, 'Message', 'Are you sure you want to delete this action?', QMessageBox.Yes, QMessageBox.No)
         if reply == QMessageBox.Yes:
             settings.removeItem(self.index)
-            utils.propagateEvent(self, QEvent(EVENT_RELOAD_WIDGETS));
+            utils.propagateEvent(self, QEvent(events.RELOAD_WIDGETS));
 
     def onFileOpen(self):
         myhome = expanduser("~")
@@ -280,7 +283,7 @@ class CreateTarget(DropWidget):
         self.actions = [
             ('Create Folder Action...', self.onCreateFolderAction),
             ('Create Executable Action...', self.onCreateFileAction),
-            ('Create From Template...', self.onCreateFromTemplate),
+            #('Create From Template...', self.onCreateFromTemplate),
         ]
 
     def onCreateFileAction(self):
@@ -304,7 +307,7 @@ class CreateTarget(DropWidget):
                 "path": context,
                 "icon": icon_filepath
             })
-            return utils.propagateEvent(self, QEvent(EVENT_RELOAD_WIDGETS));
+            return utils.propagateEvent(self, QEvent(events.RELOAD_WIDGETS));
 
     def onCreateFolderAction(self):
         context = QFileDialog.getExistingDirectory(self, 'Choose a directory', expanduser('~'))
@@ -326,7 +329,7 @@ class CreateTarget(DropWidget):
                 "path": context,
                 "icon": icon_filepath
             })
-            return utils.propagateEvent(self, QEvent(EVENT_RELOAD_WIDGETS));
+            return utils.propagateEvent(self, QEvent(events.RELOAD_WIDGETS));
 
     def onCreateFromTemplate(self):
         print("yay")
@@ -382,10 +385,10 @@ class DropTitleBar(QDialog):
         self.label.setText(title)
 
     def minimax(self):
-        utils.propagateEvent(self, QEvent(EVENT_COLLAPSE_WINDOW));
+        utils.propagateEvent(self, QEvent(events.COLLAPSE_WINDOW));
 
     def close(self):
-        utils.propagateEvent(self, QEvent(EVENT_CLOSE_WINDOW));
+        utils.propagateEvent(self, QEvent(events.CLOSE_WINDOW));
 
     def reject(self):
         return
@@ -398,8 +401,7 @@ class DropTargetGrid(QWidget):
         self.reload()
 
     def event(self, evt):
-        if evt.type() == EVENT_RELOAD_WIDGETS:
-            evt.accept()
+        if evt.type() == events.RELOAD_WIDGETS:
             self.reload()
         return super(DropTargetGrid, self).event(evt)
 

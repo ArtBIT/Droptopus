@@ -16,7 +16,7 @@ import settings
 import utils
 import __version__
 
-from widgets import DropFrame, EVENT_COLLAPSE_WINDOW, EVENT_CLOSE_WINDOW
+from widgets import DropFrame, events
 
 from PyQt5.QtGui import (
     QIcon,
@@ -315,11 +315,19 @@ class MainWindow(QMainWindow):
 
     def event(self, evt):
         et = evt.type()
-        if et == EVENT_COLLAPSE_WINDOW:
+        if et == events.COLLAPSE_WINDOW:
             evt.accept()
             self.collapse()
             return True
-        elif et == EVENT_CLOSE_WINDOW:
+        if evt.type() == events.RELOAD_WIDGETS:
+            evt.accept()
+            if self.is_expanded:
+                self.resize(self.sizeHint())
+        if et == events.EXPAND_WINDOW:
+            evt.accept()
+            self.expand()
+            return True
+        elif et == events.CLOSE_WINDOW:
             evt.accept()
             self.close()
             return True
