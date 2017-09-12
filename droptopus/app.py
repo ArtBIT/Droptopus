@@ -4,7 +4,7 @@ import args
 import logging
 import settings
 from window import MainWindow
-from PyQt4.QtGui import QApplication
+from PyQt5.QtWidgets import QApplication
 
 class App(QApplication):
 

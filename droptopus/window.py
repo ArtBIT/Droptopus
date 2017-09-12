@@ -19,28 +19,40 @@ import __version__
 from widgets import IconWidget, DirTarget, FileTarget, CreateFileTarget, CreateDirTarget, DropFrame
 from widgets import EVENT_COLLAPSE_WINDOW, EVENT_CLOSE_WINDOW
 
-from PyQt4.QtCore import (
-    QPoint,
+from PyQt5.QtGui import (
+    QIcon,
+    QPainter,
+    QPixmap,
+)
+from PyQt5.QtCore import (
+    QEvent,
     QSettings,
     QSize,
     Qt,
+    QPoint,
     QTimer,
 )
-from PyQt4.QtGui import (
+from PyQt5.QtWidgets import (
+    QApplication,
     QDesktopWidget,
     QDialog,
     QDialogButtonBox,
+    QFileDialog,
+    QFormLayout,
+    QFrame,
+    QGridLayout,
     QHBoxLayout,
-    QIcon,
     QLabel,
+    QLineEdit,
     QMainWindow,
     QMenu,
     QMessageBox,
-    QPainter,
-    QPixmap,
+    QPushButton,
+    QSizePolicy,
     QStackedWidget,
     QStyle,
     QStyleOption,
+    QToolButton,
     QVBoxLayout,
     QWidget,
 )
@@ -92,7 +104,7 @@ class DarkDialog(QDialog):
 
     def paintEvent(self, event):
         opt = QStyleOption()
-        opt.init(self)
+        opt.initFrom(self)
         painter = QPainter(self)
         self.style().drawPrimitive(QStyle.PE_Widget, opt, painter, self)
 
@@ -254,7 +266,7 @@ class MainWindow(QMainWindow):
         self.settings.beginGroup("MainWindow");
         saved_anchor = self.settings.value("anchor", None);
         if saved_anchor != None:
-            self.anchor = saved_anchor.toPoint();
+            self.anchor = saved_anchor;
         else:
             rect = QDesktopWidget().screenGeometry()
             mini = self.miniwin.sizeHint()

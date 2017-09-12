@@ -3,46 +3,22 @@
 
 Droptopus is a drag'n'drop receiver, which routes dropped objects to the designated actions.
 
-# Dependencies
- - PyQt4
- - Python Magic 
+# Dependencies 
+ - python3
+ - pyqt5
 
 # Installation
  - Clone the repo:
- `git clone https://github.com/ArtBIT/Droptopus && cd Droptopus`
-
-## Install Dependencies:
- - Create virtual environment
-    `virtualenv .env`
-
- - Install python-qt4 globaly:
-    `sudo apt-get install python-qt4`
-
- - Create symbolic link of PyQt4 to your virtual env 
-    `ln -s /usr/lib/python2.7/dist-packages/PyQt4/ .env/lib/python2.7/site-packages/`
-
- - Create symbolic link of sip.so to your virtual env
-    `ln -s /usr/lib/python2.7/dist-packages/sip.so .env/lib/python2.7/site-packages/`
-    
-     (sometimes you'll need to do this instead)
-     `ln -s /usr/lib/python2.7/dist-packages/sip.x86_64-linux-gnu.so .env/lib/python2.7/site-packages/sip.so`
-
+ `git clone https://github.com/ArtBIT/Droptopus`
+ - Create python3 virtualenv
+ `pip install virtualenv # if it's not installed`
+ `virtualenv -p python3 env`
+ - Install Dependencies:
+ `pip3 install -r requirements.txt`
  - Activate virtual environment
-    `source .env/bin/activate`
-
- - Install additional requirements
-    `pip install -r requirements.txt`
-
-## Run the Droptopus App
-
-### Run it from source
- `cd Droptopus && ./bin/droptopus`
-
-### Or build the binary yourself
- - Run the PyInstaller build script
- `cd Droptopus && bash build.sh`
- - Copy the binary to your bin path:
- `cp dist/droptopus /usr/local/bin`
+ `source env/bin/activate`
+ - Run it:
+ `python3 droptopus/main.py &`
 
 ## Credits
 

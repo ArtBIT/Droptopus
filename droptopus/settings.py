@@ -1,5 +1,5 @@
 import config
-from PyQt4.QtCore import QCoreApplication, QSettings
+from PyQt5.QtCore import QCoreApplication, QSettings
 
 QCoreApplication.setOrganizationName(config.ORG_NAME);
 QCoreApplication.setOrganizationDomain(config.ORG_DOMAIN);
@@ -28,10 +28,10 @@ def readItems():
         s.setArrayIndex(i);
         items.append({
             "index": i,
-            "type": str(s.value("type").toString()),
-            "name": str(s.value("name").toString()),
-            "path": str(s.value("path").toString()),
-            "icon": str(s.value("icon").toString())
+            "type": str(s.value("type")),
+            "name": str(s.value("name")),
+            "path": str(s.value("path")),
+            "icon": str(s.value("icon"))
         })
     s.endArray();
     return items

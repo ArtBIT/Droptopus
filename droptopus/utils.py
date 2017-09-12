@@ -1,15 +1,15 @@
 import re
 import unicodedata
-from PyQt4.QtGui import QApplication
+from PyQt5.QtWidgets import QApplication
 
 def slugify(value):
     """
     Normalizes string, converts to lowercase, removes non-alpha characters,
     and converts spaces to hyphens.
     """
-    value = unicodedata.normalize('NFKD', unicode(value)).encode('ascii', 'ignore')
-    value = unicode(re.sub('[^\w\s-]', '', value).strip().lower())
-    value = unicode(re.sub('[-\s]+', '-', value))
+    value = unicodedata.normalize('NFKD', str(value)).encode('ascii', 'ignore')
+    value = str(re.sub('[^\w\s-]', '', value).strip().lower(), 'utf-8')
+    value = str(re.sub('[-\s]+', '-', value), 'utf-8')
     return value
 
 # Remove all items from the layout
@@ -27,7 +27,7 @@ def propagateEvent(self, evt):
     # QEvent.accepted is True by default
     evt.setAccepted(False)
     app = QApplication.instance()
-    target = self.parent()
+    target = self
     while target:
         app.sendEvent(target, evt)
         if not evt.isAccepted():

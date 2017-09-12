@@ -16,15 +16,13 @@ from shutil import copyfile
 from os.path import isfile, isdir, join , expanduser
 from forms import EditItemForm
 
-from PyQt4 import QtGui, QtCore
-
-from PyQt4.QtCore import (
+from PyQt5.QtCore import (
     QEvent,
     QSettings,
     QSize,
     Qt,
 )
-from PyQt4.QtGui import (
+from PyQt5.QtWidgets import (
     QApplication,
     QDialog,
     QDialogButtonBox,
@@ -33,23 +31,24 @@ from PyQt4.QtGui import (
     QFrame,
     QGridLayout,
     QHBoxLayout,
-    QIcon,
     QInputDialog,
     QLabel,
     QLineEdit,
     QMenu,
     QMessageBox,
-    QPainter,
-    QPalette,
-    QPixmap,
     QPushButton,
-    QSizePolicy,
     QSizePolicy,
     QStyle,
     QStyleOption,
     QToolButton,
     QVBoxLayout,
     QWidget,
+)
+from PyQt5.QtGui import (
+    QPixmap,
+    QPainter,
+    QIcon,
+    QPalette,
 )
 
 EVENT_RELOAD_WIDGETS = QEvent.registerEventType(1337);
@@ -106,7 +105,7 @@ class BaseDropWidget(QWidget):
         #self.setFixedSize(width,height)
 
     def handle(self, context):
-        context = unicode(context.toUtf8(), encoding="UTF-8")
+        context = str(context)
         return context
 
     def setStyleProperty(self, prop, value):
@@ -141,7 +140,7 @@ class BaseDropWidget(QWidget):
         elif event.mimeData().hasUrls():
             event.accept()
             for url in event.mimeData().urls():
-                url = str(url.toString())
+                url = str(url)
                 self.handle(url)
 
         utils.propagateEvent(self, QEvent(EVENT_COLLAPSE_WINDOW));
@@ -151,7 +150,7 @@ class BaseDropWidget(QWidget):
     # can update the background via qss
     def paintEvent(self, event):
         opt = QStyleOption()
-        opt.init(self)
+        opt.initFrom(self)
         painter = QPainter(self)
         self.style().drawPrimitive(QStyle.PE_Widget, opt, painter, self)
 
@@ -238,7 +237,7 @@ class DropWidget(BaseDropWidget):
 
     def onFileOpen(self):
         myhome = expanduser("~")
-        fname = QFileDialog.getOpenFileName(self, 'Open file', myhome)
+        fname, _filter = QFileDialog.getOpenFileName(self, 'Open file', myhome)
         self.handle(fname)
 
     def onPasteFromClipboard(self):
@@ -284,19 +283,19 @@ class CreateFileTarget(DropWidget):
         ]
 
     def handle(self, context):
-        context = unicode(context.toUtf8(), encoding="UTF-8")
+        context = str(context)
+        logging.info('Create file target: %s', context)
         name = os.path.basename(context)
         name, ok = QInputDialog.getText(self, "Enter the name for the new action", "Action name:", QLineEdit.Normal, name)
-        #name = unicode(name, encoding="UTF-8").strip()
         if ok and name:
             if not isfile(context):
                 return QMessageBox.critical(self, 'Error', 'Target action must be a local file.', QMessageBox.Ok)
 
-            icon_filepath = QFileDialog.getOpenFileName(self, 'Choose Icon', config.ASSETS_DIR)
+            icon_filepath, _filter = QFileDialog.getOpenFileName(self, 'Choose Icon', config.ASSETS_DIR)
             if not icon_filepath:
                 icon_filepath = join(config.ASSETS_DIR, 'downloads.png')
             settings.pushItem({
-                "type": self.type,
+                "type": 'file',
                 "name": name,
                 "path": context,
                 "icon": icon_filepath
@@ -316,23 +315,22 @@ class CreateDirTarget(DropWidget):
 
     def onFileOpen(self):
         myhome = expanduser("~")
-        fname = QFileDialog.getExistingDirectory(self, 'Choose a directory', myhome)
+        fname, _filter = QFileDialog.getExistingDirectory(self, 'Choose a directory', myhome)
         self.handle(fname)
 
     def handle(self, context):
-        context = unicode(context.toUtf8(), encoding="UTF-8")
+        context = str(context)
         name = os.path.basename(context)
         name, ok = QInputDialog.getText(self, "Enter the name for the new action", "Action name:", QLineEdit.Normal, name)
-        #name = unicode(name, encoding="UTF-8").strip()
         if ok and name:
             if not isdir(context):
                 return QMessageBox.critical(self, 'Error', 'Target should be a local directory.', QMessageBox.Ok)
 
-            icon_filepath = QFileDialog.getOpenFileName(self, 'Choose Icon', config.ASSETS_DIR)
+            icon_filepath, _filter = QFileDialog.getOpenFileName(self, 'Choose Icon', config.ASSETS_DIR)
             if not icon_filepath:
                 icon_filepath = join(config.ASSETS_DIR, 'downloads.png')
             settings.pushItem({
-                "type": self.type,
+                "type": 'dir',
                 "name": name,
                 "path": context,
                 "icon": icon_filepath
@@ -388,7 +386,7 @@ class DropTitleBar(QDialog):
         utils.propagateEvent(self, QEvent(EVENT_CLOSE_WINDOW));
 
     def reject(self):
-        print "" #do not close on escape
+        return
 
 class DropTargetGrid(QWidget):
     def __init__(self, parent=None):
@@ -424,8 +422,12 @@ class DropTargetGrid(QWidget):
         utils.clearLayout(layout)
         items = settings.readItems()
         total_items = len(items)
+        if total_items == 0:
+            return
         root = math.sqrt(total_items)
         rows = int(root)
+        if rows == 0:
+            rows = 1
         cols = int(total_items/rows) + 1
         settings.writeItems(items)
 
@@ -462,7 +464,7 @@ class DropFrame(QFrame):
         vbox = QVBoxLayout(self)
         vbox.addWidget(self.titlebar)
         vbox.addWidget(self.content)
-        vbox.setMargin(0)
+        vbox.setContentsMargins(0, 0, 0, 0)
         vbox.setSpacing(0)
         self.setLayout(vbox)
 

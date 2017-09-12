@@ -1,8 +1,10 @@
 import os
 import config
 import settings
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import (
+import logging
+
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QFileDialog,
@@ -11,8 +13,10 @@ from PyQt4.QtGui import (
     QLabel,
     QLineEdit,
     QMessageBox,
-    QPixmap,
     QPushButton,
+)
+from PyQt5.QtGui import (
+    QPixmap,
 )
 
 class EditItemForm(QDialog):
@@ -64,7 +68,7 @@ class EditItemForm(QDialog):
         self.item = item
 
     def onChangeIcon(self):
-        icon_filepath = QFileDialog.getOpenFileName(self, 'Choose Icon', config.ASSETS_DIR)
+        icon_filepath, _filter = QFileDialog.getOpenFileName(self, 'Choose Icon', os.path.dirname(self.item['icon']))
         if icon_filepath:
             icon_size = 15
             self.icon.setPixmap(QPixmap(icon_filepath).scaled(icon_size, icon_size, Qt.KeepAspectRatio, Qt.SmoothTransformation))
@@ -73,12 +77,12 @@ class EditItemForm(QDialog):
     def onChangePath(self):
         path = self.item["path"] if len(self.item["path"]) else os.path.expanduser("~")
         if self.item["type"] == "dir":
-            path = QFileDialog.getExistingDirectory(self, 'Choose a directory', path)
+            path, _filter = QFileDialog.getExistingDirectory(self, 'Choose a directory', path)
             if path:
                 self.path.setText(path)
                 self.item["path"] = path
         else:
-            path = QFileDialog.getOpenFileName(self, 'Open file', path)
+            path, _filter = QFileDialog.getOpenFileName(self, 'Open file', path)
             if path:
                 self.path.setText(path)
                 self.item["path"] = path
