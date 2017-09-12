@@ -22,7 +22,9 @@ Droptopus is a drag'n'drop receiver, which routes dropped objects to the designa
     `ln -s /usr/lib/python2.7/dist-packages/PyQt4/ .env/lib/python2.7/site-packages/`
 
  - Create symbolic link of sip.so to your virtual env
-    `ln -s /usr/lib/python2.7/dist-packages/sip.so .env/lib/python2.7/site-packages/`
+    `ln -s /usr/lib/python2.7/dist-packages/sip.so .env/lib/python2.7/site-packages/
+     (sometimes you'll need to do this instead)
+     `ln -s /usr/lib/python2.7/dist-packages/sip.x86_64-linux-gnu.so .env/lib/python2.7/site-packages/sip.so`
 
  - Activate virtual environment
     `source .env/bin/activate`
