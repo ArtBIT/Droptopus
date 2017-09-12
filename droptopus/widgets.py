@@ -329,17 +329,16 @@ class CreateTarget(DropWidget):
             return utils.propagateEvent(self, QEvent(EVENT_RELOAD_WIDGETS));
 
     def onCreateFromTemplate(self):
-        print("yay")
-        return 
+        pass
 
     def mousePressEvent(self, event):
         self.contextMenuEvent(event)
 
     def mouseDoubleClickEvent(self, event):
-        return 
+        pass
 
     def handle(self, context):
-        return
+        pass
 
 
 
@@ -422,7 +421,7 @@ class DropTargetGrid(QWidget):
             for i in range(cols):
                 if item_idx >= total_items:
                     break
-                layout.addWidget(self.instantiateWidget(items[item_idx], item_idx), j, i)
+                layout.addWidget(self.instantiateWidget(items[item_idx], item_idx-1), j, i)
                 item_idx = item_idx + 1
 
 
