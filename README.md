@@ -3,9 +3,16 @@
 
 Droptopus is a drag'n'drop receiver, which routes dropped objects to the designated actions.
 
+# Dependencies 
+ - python3
+ - pyqt5
+
 # Installation
  - Clone the repo:
  `git clone https://github.com/ArtBIT/Droptopus`
+ - Create python3 virtualenv
+ `pip install virtualenv # if it's not installed`
+ `virtualenv -p python3 env`
  - Install Dependencies:
  `pip3 install -r requirements.txt`
  - Activate virtual environment

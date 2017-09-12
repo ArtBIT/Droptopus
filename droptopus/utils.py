@@ -27,7 +27,7 @@ def propagateEvent(self, evt):
     # QEvent.accepted is True by default
     evt.setAccepted(False)
     app = QApplication.instance()
-    target = self.parent()
+    target = self
     while target:
         app.sendEvent(target, evt)
         if not evt.isAccepted():

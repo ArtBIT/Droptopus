@@ -237,7 +237,7 @@ class DropWidget(BaseDropWidget):
 
     def onFileOpen(self):
         myhome = expanduser("~")
-        fname = QFileDialog.getOpenFileName(self, 'Open file', myhome)
+        fname, _filter = QFileDialog.getOpenFileName(self, 'Open file', myhome)
         self.handle(fname)
 
     def onPasteFromClipboard(self):
@@ -284,17 +284,18 @@ class CreateFileTarget(DropWidget):
 
     def handle(self, context):
         context = str(context)
+        logging.info('Create file target: %s', context)
         name = os.path.basename(context)
         name, ok = QInputDialog.getText(self, "Enter the name for the new action", "Action name:", QLineEdit.Normal, name)
         if ok and name:
             if not isfile(context):
                 return QMessageBox.critical(self, 'Error', 'Target action must be a local file.', QMessageBox.Ok)
 
-            icon_filepath = QFileDialog.getOpenFileName(self, 'Choose Icon', config.ASSETS_DIR)
+            icon_filepath, _filter = QFileDialog.getOpenFileName(self, 'Choose Icon', config.ASSETS_DIR)
             if not icon_filepath:
                 icon_filepath = join(config.ASSETS_DIR, 'downloads.png')
             settings.pushItem({
-                "type": self.type,
+                "type": 'file',
                 "name": name,
                 "path": context,
                 "icon": icon_filepath
@@ -314,7 +315,7 @@ class CreateDirTarget(DropWidget):
 
     def onFileOpen(self):
         myhome = expanduser("~")
-        fname = QFileDialog.getExistingDirectory(self, 'Choose a directory', myhome)
+        fname, _filter = QFileDialog.getExistingDirectory(self, 'Choose a directory', myhome)
         self.handle(fname)
 
     def handle(self, context):
@@ -325,11 +326,11 @@ class CreateDirTarget(DropWidget):
             if not isdir(context):
                 return QMessageBox.critical(self, 'Error', 'Target should be a local directory.', QMessageBox.Ok)
 
-            icon_filepath = QFileDialog.getOpenFileName(self, 'Choose Icon', config.ASSETS_DIR)
+            icon_filepath, _filter = QFileDialog.getOpenFileName(self, 'Choose Icon', config.ASSETS_DIR)
             if not icon_filepath:
                 icon_filepath = join(config.ASSETS_DIR, 'downloads.png')
             settings.pushItem({
-                "type": self.type,
+                "type": 'dir',
                 "name": name,
                 "path": context,
                 "icon": icon_filepath
