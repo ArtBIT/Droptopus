@@ -8,8 +8,13 @@ Droptopus is a drag'n'drop receiver, which routes dropped objects to the designa
  - Python Magic 
 
 # Installation
+ - Clone the repo:
+ `git clone https://github.com/ArtBIT/Droptopus && cd Droptopus`
 
 ## Install Dependencies:
+ - Create virtual environment
+    `virtualenv .env`
+
  - Install python-qt4 globaly:
     `sudo apt-get install python-qt4`
 
@@ -19,17 +24,19 @@ Droptopus is a drag'n'drop receiver, which routes dropped objects to the designa
  - Create symbolic link of sip.so to your virtual env
     `ln -s /usr/lib/python2.7/dist-packages/sip.so .env/lib/python2.7/site-packages/`
 
-## Run the Droptopus App from source
- - Clone the repo:
- `git clone https://github.com/ArtBIT/Droptopus`
- - Run it:
+ - Activate virtual environment
+    `source .env/bin/activate`
+
+ - Install additional requirements
+    `pip install -r requirements.txt`
+
+## Run the Droptopus App
+
+### Run it from source
  `cd Droptopus && ./bin/droptopus`
 
-## ...Or build the binary yourself
- - Install the dependencies
- - Clone the repo:
- `git clone https://github.com/ArtBIT/Droptopus`
- - Build the binary:
+### Or build the binary yourself
+ - Run the PyInstaller build script
  `cd Droptopus && bash build.sh`
  - Copy the binary to your bin path:
  `cp dist/droptopus /usr/local/bin`
