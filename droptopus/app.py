@@ -64,18 +64,12 @@ class App(QApplication):
         font-size: 16px;
         font-weight: bold;
     }
-    AboutDialog QWidget {
-    }
-    QFrame[frameShape="4"], /* QFrame::HLine == 0x0004 */
-    QFrame[frameShape="5"]  /* QFrame::VLine == 0x0005 */
-    {
-    }
     DropWidget {
         background-color: rgba(0,0,0,0%);
     }
     DropWidget[draggedOver=true],
     DropWidget[hover=true] {
-        background-color: rgba(0,0,0,50%);
+        background-color: rgba(255,255,255,5%);
     }
     """
     self.setStyleSheet(css) 
