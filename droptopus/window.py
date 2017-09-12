@@ -181,7 +181,6 @@ class MainWindow(QMainWindow):
         menu = QMenu(self)
         label = ('Expand', 'Collapse')[self.is_expanded]
         expand_action = menu.addAction(label)
-        reload_action = menu.addAction("Reload")
         about_action = menu.addAction("About")
         menu.addSeparator()
         quit_action = menu.addAction("Quit")
@@ -191,10 +190,6 @@ class MainWindow(QMainWindow):
                 self.collapse()
             else:
                 self.expand()
-        elif action == reload_action:
-            self.collapse()
-            self.frame.reload()
-            self.expand()
         elif action == about_action:
             self.showAbout()
         elif action == quit_action:
