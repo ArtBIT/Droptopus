@@ -20,6 +20,12 @@ Droptopus is a drag'n'drop receiver, which routes dropped objects to the designa
  - Run it:
  `python3 droptopus/main.py &`
 
+# Build binary from source
+PyInstaller does not yet support Python 3.6, but the current development branch does. In order to build this project you will need to install the PyInstaller development build:
+`pip install git+https://github.com/pyinstaller/pyinstaller.git`
+And then run the build script:
+`./build.sh`
+
 ## Credits
 
 This project uses awesome icons from [http://icons8.com](Icons8)
