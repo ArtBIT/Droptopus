@@ -26,9 +26,20 @@ PyInstaller does not yet support Python 3.6, but the current development branch 
 And then run the build script:
 `./build.sh`
 
-## Credits
+## Acknowledgements
 
-This project uses awesome icons from [http://icons8.com](Icons8)
+Droptopus uses
+
+- [Nokia's](http://www.nokia.com): [Qt](http://qt.nokia.com)
+
+- [Riverbank Computing Limited's](http://www.riverbankcomputing.co.uk): [SIP](http://www.riverbankcomputing.co.uk/software/sip/intro)
+
+- [Riverbank Computing Limited's](http://www.riverbankcomputing.co.uk): [PyQt5](http://www.riverbankcomputing.co.uk/software/pyqt/intro)
+
+- [Icon8's](http://icons8.com): [awesome icons](http://icons8.com)
+
+Thanks!
+
 
 ## License
 
