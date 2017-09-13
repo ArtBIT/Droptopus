@@ -209,14 +209,14 @@ class MainWindow(QMainWindow):
     def expand(self):
         if self.is_expanded:
             return
-        self.setAcceptDrops(False)
         self.is_expanded = True
+        self.setAcceptDrops(False)
         self.content.hide()
         expanded = self.frame.sizeHint()
         self.setMinimumSize(expanded)
-        self.resize(expanded)
         self.content.setCurrentWidget(self.frame)
         self.content.show()
+        self.resize(expanded)
 
         # on OSX the window will not automatically stay inside the screen like on Linux
         # we have to do it manually
@@ -236,15 +236,15 @@ class MainWindow(QMainWindow):
     def collapse(self):
         if not self.is_expanded:
             return
-        self.setAcceptDrops(True)
         self.is_expanded = False
+        self.setAcceptDrops(True)
         self.content.hide()
         mini = self.miniwin.sizeHint()
         self.setMinimumSize(mini)
-        self.resize(mini)
         self.move(self.anchor)
         self.content.setCurrentWidget(self.miniwin)
         self.content.show()
+        self.resize(mini)
 
     def showAbout(self):
         about = AboutDialog(self)
