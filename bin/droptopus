@@ -9,7 +9,7 @@ cd $DIR/..
 
 # If the virtual environment has not yet been initialized
 if [[ ! -d env ]]; then
-    virtualenv --no-site-packages env && source env/bin/activate && pip install -r requirements.txt
+    virtualenv -p python3 env && source env/bin/activate && pip3 install -r requirements.txt
 fi
 
 # activate virtual environment
