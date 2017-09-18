@@ -1,4 +1,4 @@
-[![GitHub stars](https://img.shields.io/github/stars/ArtBIT/droptopus.svg)](https://github.com/ArtBIT/droptopus) [![GitHub license](https://img.shields.io/github/license/ArtBIT/droptopus.svg)](https://github.com/ArtBIT/droptopus) [![GitHub issues](https://img.shields.io/github/issues/ArtBIT/droptopus.svg)](https://github.com/ArtBIT/droptopus/issues)
+[![Build Status](https://travis-ci.org/ArtBIT/droptopus.svg)](https://travis-ci.org/ArtBIT/droptopus) [![GitHub stars](https://img.shields.io/github/stars/ArtBIT/droptopus.svg)](https://github.com/ArtBIT/droptopus) [![GitHub license](https://img.shields.io/github/license/ArtBIT/droptopus.svg)](https://github.com/ArtBIT/droptopus) [![GitHub issues](https://img.shields.io/github/issues/ArtBIT/droptopus.svg)](https://github.com/ArtBIT/droptopus/issues)
 
 # Droptopus
 ![Droptopus Logo](/droptopus/assets/droptopus.png)
