@@ -1,5 +1,6 @@
 language: python
-dist: "trusty" # otherwise 'python3-pip' won't be available
+sudo: required
+dist: trusty # otherwise 'python3-pip' won't be available
 addons:
   apt:
     packages:
@@ -10,11 +11,7 @@ python:
   - "3.3"
   - "3.4"
   - "3.5"
-  - "3.5-dev" # 3.5 development branch
   - "3.6"
-  - "3.6-dev" # 3.6 development branch
-  - "3.7-dev" # 3.7 development branch
-  - "nightly"
 # command to install dependencies
 install:
   - pip3 install -r requirements.txt
