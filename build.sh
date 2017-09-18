@@ -9,4 +9,5 @@ pyinstaller \
     --paths droptopus \
     --upx-dir=/usr/local/share/ \
     --name droptopus \
+    --icon droptopus/assets/droptopus.png \
     droptopus/main.py
