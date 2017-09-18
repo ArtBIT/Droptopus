@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from app import App
+from droptopus.app import App
 
 def main():
     app = App()

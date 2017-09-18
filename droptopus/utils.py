@@ -7,9 +7,9 @@ def slugify(value):
     Normalizes string, converts to lowercase, removes non-alpha characters,
     and converts spaces to hyphens.
     """
-    value = unicodedata.normalize('NFKD', str(value)).encode('ascii', 'ignore')
-    value = str(re.sub('[^\w\s-]', '', value).strip().lower(), 'utf-8')
-    value = str(re.sub('[-\s]+', '-', value), 'utf-8')
+    value = str(unicodedata.normalize('NFKD', value).encode('ascii', 'ignore'))
+    value = re.sub(r'[^\w\s-]', '', value).strip().lower()
+    value = re.sub(r'[-\s]+', '-', value)
     return value
 
 # Remove all items from the layout

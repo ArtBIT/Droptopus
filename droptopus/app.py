@@ -1,10 +1,8 @@
 import sys
-import config
-import args
 import logging
-import settings
-from window import MainWindow
 from PyQt5.QtWidgets import QApplication
+from droptopus import config, settings, args
+from droptopus.window import MainWindow
 
 class App(QApplication):
 

@@ -1,7 +1,7 @@
 import os
-import config
-import settings
 import logging
+
+from droptopus import config, settings
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (

@@ -2,19 +2,17 @@ import os
 import sys
 import re
 import magic
-import urllib
+import requests
 import math
 import tempfile
 import subprocess
-import config
 import logging
-import settings
-import utils
 
 from os import rename
 from shutil import copyfile
 from os.path import isfile, isdir, join , expanduser
-from forms import EditItemForm
+from droptopus import config, settings, utils
+from droptopus.forms import EditItemForm
 
 from PyQt5.QtCore import (
     QEvent,
@@ -108,7 +106,6 @@ class BaseDropWidget(QWidget):
         #self.setFixedSize(width,height)
 
     def handle(self, context):
-        context = str(context)
         return context
 
     def setStyleProperty(self, prop, value):
@@ -175,11 +172,11 @@ class DropWidget(BaseDropWidget):
     def handle(self, context):
         context = super(DropWidget, self).handle(context)
         if re_url.match(context):
-            self.handle_url(context)
+            return self.handle_url(context)
         elif isfile(context):
-            self.handle_filepath(context)
+            return self.handle_filepath(context)
         else:
-            self.handle_text(context)
+            return self.handle_text(context)
 
     def mouseDoubleClickEvent(self, event):
         if sys.platform.startswith('darwin'):
@@ -220,6 +217,9 @@ class DropWidget(BaseDropWidget):
         self.in_context_menu = False
 
     def onEdit(self):
+        """
+        Opens and executes the edit form, which allows the user to edit the selected DropTarget
+        """
         item = {
             "index": self.index,
             "type": self.type,
@@ -230,54 +230,100 @@ class DropWidget(BaseDropWidget):
         form = EditItemForm(item, self)
         form.setModal(True)
         form.exec_()
-        utils.propagateEvent(self, QEvent(events.RELOAD_WIDGETS));
+        utils.propagateEvent(self, QEvent(events.RELOAD_WIDGETS))
 
     def onDelete(self):
+        """
+        After confirming the delete action, removes the item from the settings file.
+        """
         reply = QMessageBox.question(self, 'Message', 'Are you sure you want to delete this action?', QMessageBox.Yes, QMessageBox.No)
         if reply == QMessageBox.Yes:
             settings.removeItem(self.index)
             utils.propagateEvent(self, QEvent(events.RELOAD_WIDGETS));
 
     def onFileOpen(self):
+        """
+        Opens a standard file dialog and processess the selected filepath.
+        """
         myhome = expanduser("~")
         fname, _filter = QFileDialog.getOpenFileName(self, 'Open file', myhome)
         self.handle(fname)
 
     def onPasteFromClipboard(self):
+        """
+        Handles clipboard paste event.
+        """
         clipboard = QApplication.instance().clipboard()
         self.handle(clipboard.text())
 
 
 class DirTarget(DropWidget):
+    """
+    A DropWidget that processes the dropped context and saves it to a directory.
+    """
     def handle_filepath(self, filepath):
+        """
+        Processes passed filepath.
+        """
         dest = join(self.filepath, os.path.basename(filepath))
         copyfile(filepath, dest)
+        return 0, dest
 
     def handle_text(self, text):
+        """
+        Processes passed raw text.
+        """
         tmp = next(tempfile._get_candidate_names())
-        tmp = join(self.filepath, tmp)
-        text_file = open(tmp+".txt", "w")
+        tmp = join(self.filepath, tmp) + '.txt'
+        text_file = open(tmp, "w")
         text_file.write(text.encode('utf8'))
         text_file.close()
+        return 0, tmp
 
     def handle_url(self, url):
+        """
+        Processes passed URL.
+        """
         tmp = tempfile.NamedTemporaryFile(delete=False)
-        urllib.urlretrieve(url, tmp.name)
+        r = requests.get(url)
+        with open(tmp.name, 'wb') as fd:
+            for chunk in r.iter_content(chunk_size=128):
+                fd.write(chunk)
+            fd.close()
         ext = magic.from_file(tmp.name, mime=True).split('/')[1]
         dest = join(self.filepath, utils.slugify(url.split('/').pop()) + '.' + ext)
         copyfile(tmp.name, dest)
+        return 0, dest
 
 class FileTarget(DropWidget):
+    """
+    A DropWidget that processes the dropped context processes it through a script.
+    """
     def handle_filepath(self, filepath):
-        subprocess.call([self.filepath, filepath])
+        """
+        Processes passed filepath.
+        """
+        ret = subprocess.call([self.filepath, filepath])
+        return ret, filepath
 
     def handle_text(self, text):
-        subprocess.call([self.filepath, text])
+        """
+        Processes passed raw text.
+        """
+        ret = subprocess.call([self.filepath, text])
+        return ret, text
 
     def handle_url(self, url):
-        subprocess.call([self.filepath, url])
+        """
+        Processes passed URL.
+        """
+        ret = subprocess.call([self.filepath, url])
+        return ret, url
 
 class CreateTarget(DropWidget):
+    """
+    A DropWidget that creates a DirTarget or FileTarget
+    """
     def __init__(self, parent, widget_type, name, index, icon, filepath):
         super(CreateTarget, self).__init__(parent, 'builtin', name, index, icon, filepath)
         self.actions = [
@@ -287,16 +333,20 @@ class CreateTarget(DropWidget):
         ]
 
     def onCreateFileAction(self):
+        """
+        Create a new FileTarget.
+        """
         context, _filter = QFileDialog.getOpenFileName(self, 'Open file', expanduser('~'))
         context = str(context)
         if not context:
-            return
+            return 1, 'Missing argument' 
         logging.info('Create file target: %s', context)
         name = os.path.basename(context)
         name, ok = QInputDialog.getText(self, "Enter the name for the new action", "Action name:", QLineEdit.Normal, name)
         if ok and name:
             if not isfile(context):
-                return QMessageBox.critical(self, 'Error', 'Target action must be a local file.', QMessageBox.Ok)
+                QMessageBox.critical(self, 'Error', 'Target action must be a local file.', QMessageBox.Ok)
+                return 1, 'Target action must be a local file' 
 
             icon_filepath, _filter = QFileDialog.getOpenFileName(self, 'Choose Icon', config.ASSETS_DIR)
             if not icon_filepath:
@@ -307,18 +357,23 @@ class CreateTarget(DropWidget):
                 "path": context,
                 "icon": icon_filepath
             })
-            return utils.propagateEvent(self, QEvent(events.RELOAD_WIDGETS));
+            utils.propagateEvent(self, QEvent(events.RELOAD_WIDGETS));
+            return 0, context
 
     def onCreateFolderAction(self):
+        """
+        Create a new DirTarget.
+        """
         context = QFileDialog.getExistingDirectory(self, 'Choose a directory', expanduser('~'))
         context = str(context)
         if not context:
-            return
+            return 1, 'Missing argument' 
         name = os.path.basename(context)
         name, ok = QInputDialog.getText(self, "Enter the name for the new action", "Action name:", QLineEdit.Normal, name)
         if ok and name:
             if not isdir(context):
-                return QMessageBox.critical(self, 'Error', 'Target should be a local directory.', QMessageBox.Ok)
+                QMessageBox.critical(self, 'Error', 'Target should be a local directory.', QMessageBox.Ok)
+                return 1, 'Target action must be a local directory' 
 
             icon_filepath, _filter = QFileDialog.getOpenFileName(self, 'Choose Icon', config.ASSETS_DIR)
             if not icon_filepath:
@@ -329,9 +384,13 @@ class CreateTarget(DropWidget):
                 "path": context,
                 "icon": icon_filepath
             })
-            return utils.propagateEvent(self, QEvent(events.RELOAD_WIDGETS));
+            utils.propagateEvent(self, QEvent(events.RELOAD_WIDGETS));
+            return 0, context
 
     def onCreateFromTemplate(self):
+        """
+        TODO: make templates for standard actions like emails, twitter, etc.
+        """
         pass
 
     def mousePressEvent(self, event):
@@ -346,6 +405,9 @@ class CreateTarget(DropWidget):
 
 
 class DropTitleBar(QDialog):
+    """
+    TitleBar widget for our custom dialog.
+    """
     def __init__(self, parent, title):
         QWidget.__init__(self, parent)
         self.setWindowFlags(Qt.FramelessWindowHint)
@@ -393,6 +455,9 @@ class DropTitleBar(QDialog):
         return
 
 class DropTargetGrid(QWidget):
+    """
+    The body of our custom dialog which contains a grid of DropTargets.
+    """
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.grid_layout = QGridLayout(self)
@@ -412,6 +477,7 @@ class DropTargetGrid(QWidget):
         items = settings.readItems()
         items.insert(0, {"type":"builtin", "name": "Create Action", "path": "", "icon": join(config.ASSETS_DIR, 'plus_white.png')})
         total_items = len(items)
+        # Try to make the grid as close to a square as possible, but favour horizontal rectangles
         root = math.sqrt(total_items)
         rows = int(root)
         if rows == 0:
@@ -428,6 +494,9 @@ class DropTargetGrid(QWidget):
 
 
     def instantiateWidget(self, widget_info, index = None):
+        """
+        A helper method to instantiat DropWidgets depeneding on the type.
+        """
         logging.info('Instantiating item { index: %s, type: %s, name: %s, path: %s, icon: %s }', index, widget_info['type'], widget_info['name'], widget_info['path'], widget_info['icon']) 
         m = sys.modules[__name__] # current module
         widget_classes = {

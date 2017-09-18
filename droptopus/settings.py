@@ -1,4 +1,4 @@
-import config
+from droptopus import config
 from PyQt5.QtCore import QCoreApplication, QSettings
 
 QCoreApplication.setOrganizationName(config.ORG_NAME);

@@ -8,15 +8,11 @@ author: Djordje Ungar
 website: djordjeungar.com
 """
 import os
-from os import listdir
 from os.path import isfile, isdir, join, expanduser
 import sys
-import config
-import settings
-import utils
-import __version__
 
-from widgets import DropFrame, events
+from droptopus import config, settings, utils, __version__
+from droptopus.widgets import DropFrame, events
 
 from PyQt5.QtGui import (
     QIcon,
