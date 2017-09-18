@@ -1,5 +1,4 @@
 language: python
-sudo: required
 dist: trusty # otherwise 'python3-pip' won't be available
 before_install:
 - sudo apt-get update -qq
