@@ -1,4 +1,5 @@
 language: python
+dist: "trusty" # otherwise 'python3-pip' won't be available
 addons:
   apt:
     packages:
