@@ -1,15 +1,10 @@
 language: python
 sudo: required
 dist: trusty # otherwise 'python3-pip' won't be available
-addons:
-  apt:
-    packages:
-      - "python3"
-      - "python3-pip"
+before_install:
+- sudo apt-get update -qq
+- sudo apt-get install python3 python3-pip
 python:
-  - "3.2"
-  - "3.3"
-  - "3.4"
   - "3.5"
   - "3.6"
 # command to install dependencies
