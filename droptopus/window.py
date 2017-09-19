@@ -162,6 +162,7 @@ class MainWindow(QMainWindow):
         self.is_visible = True
         self.is_expanded = True
         self.is_move_action = False
+        self.should_confirm_close = False
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
         self.setAttribute(Qt.WA_NoSystemBackground, True)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
@@ -200,6 +201,7 @@ class MainWindow(QMainWindow):
         elif action == about_action:
             self.showAbout()
         elif action == quit_action:
+            self.should_confirm_close = True
             self.close()
 
     def expand(self):
@@ -284,6 +286,8 @@ class MainWindow(QMainWindow):
         self.settings.endGroup();
 
     def userReallyWantsToQuit(self):
+        if not self.should_confirm_close:
+            return True
         reply = QMessageBox.question(self, 'Close Droptopus', 'Are you sure you want to close the application?', QMessageBox.Yes, QMessageBox.No)
         return reply == QMessageBox.Yes
 
@@ -325,6 +329,7 @@ class MainWindow(QMainWindow):
             return True
         elif et == events.CLOSE_WINDOW:
             evt.accept()
+            self.should_confirm_close = True
             self.close()
             return True
         return super(MainWindow, self).event(evt)
