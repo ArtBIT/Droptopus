@@ -4,7 +4,9 @@
 pushd . >/dev/null
 
 # change directory to the app directory
-DIR="$( cd "$( dirname "$( readlink -f "${BASH_SOURCE[0]}" )" )" && pwd )"
+READLINK=greadlink
+type $GREADLINK >/dev/null 2>&1 || READLINK=readlink
+DIR="$( cd "$( dirname "$( $READLINK -f "${BASH_SOURCE[0]}" )" )" && pwd )"
 cd $DIR/..
 
 # If the virtual environment has not yet been initialized
