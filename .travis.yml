@@ -1,5 +1,6 @@
 language: python
-dist: trusty # otherwise 'python3-pip' won't be available
+# must be trusty for 'python3-pip' to be available
+dist: trusty 
 before_install:
 - sudo apt-get update -qq
 - sudo apt-get install python3 python3-pip
