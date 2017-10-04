@@ -12,4 +12,4 @@ python:
 install:
   - pip3 install -r requirements.txt
 # command to run tests
-script: pytest
+script: python test/test_target_handling.py
