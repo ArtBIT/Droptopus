@@ -16,19 +16,19 @@ class DropTargetTest(unittest.TestCase):
     def setUp(self):
         '''Create the widgets'''
         self.widget = QWidget()
-        self.create_target = self.instantiateWidget({"type":"builtin", "name": "Create Action", "path": "", "icon": join(config.ASSETS_DIR, 'plus_white.png')}, 0)
-        self.dir_target = self.instantiateWidget({"type":"dir", "name": "Dir Action", "path": "/tmp", "icon": join(config.ASSETS_DIR, 'plus_white.png')}, 1)
-        self.file_target = self.instantiateWidget({"type":"file", "name": "File Action", "path": "echo", "icon": join(config.ASSETS_DIR, 'plus_white.png')}, 2)
+        self.create_target = self.instantiateWidget({"desc": "", "type":"builtin", "name": "Create Action", "path": "", "icon": join(config.ASSETS_DIR, 'plus_white.png'), "index": 0})
+        self.dir_target    = self.instantiateWidget({"desc": "", "type":"dir", "name": "Dir Action", "path": "/tmp", "icon": join(config.ASSETS_DIR, 'plus_white.png'), "index": 1})
+        self.file_target   = self.instantiateWidget({"desc": "", "type":"file", "name": "File Action", "path": "echo", "icon": join(config.ASSETS_DIR, 'plus_white.png'), "index": 2})
 
-    def instantiateWidget(self, widget_info, index = None):
+    def instantiateWidget(self, conf):
         '''Helper method to create the widgets'''
-        widget_type = widget_info['type']
+        widget_type = conf['type']
         if widget_type == 'dir':
-            return DirTarget(self.widget, widget_info['type'], widget_info['name'], index, widget_info['icon'], widget_info['path'])
+            return DirTarget(self.widget, conf)
         elif widget_type == 'file':
-            return FileTarget(self.widget, widget_info['type'], widget_info['name'], index, widget_info['icon'], widget_info['path'])
+            return FileTarget(self.widget, conf)
         elif widget_type == 'builtin':
-            return CreateTarget(self.widget, widget_info['type'], widget_info['name'], index, widget_info['icon'], widget_info['path'])
+            return CreateTarget(self.widget, conf)
 
     def test_handle_urls(self):
         '''Test URL handling'''

@@ -5,7 +5,7 @@ pushd . >/dev/null
 
 # change directory to the app directory
 READLINK=greadlink
-type $GREADLINK >/dev/null 2>&1 || READLINK=readlink
+type $READLINK >/dev/null 2>&1 || READLINK=readlink
 DIR="$( cd "$( dirname "$( $READLINK -f "${BASH_SOURCE[0]}" )" )" && pwd )"
 cd $DIR/..
 

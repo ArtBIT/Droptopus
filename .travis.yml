@@ -1,3 +1,4 @@
+sudo: required
 language: python
 # must be trusty for 'python3-pip' to be available
 dist: trusty 
