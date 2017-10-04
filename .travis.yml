@@ -13,4 +13,4 @@ before_install:
 install:
   - pip3 install -r requirements.txt
 # command to run tests
-script: pytest -v
+script: python -m pytest
