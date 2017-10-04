@@ -1,4 +1,4 @@
-sudo: required
+sudo: false
 language: python
 # must be trusty for 'python3-pip' to be available
 dist: trusty 
@@ -13,4 +13,4 @@ before_install:
 install:
   - pip3 install -r requirements.txt
 # command to run tests
-script: python -m pytest
+script: pytest .
