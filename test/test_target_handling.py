@@ -12,7 +12,7 @@ from droptopus.widgets import FileTarget, DirTarget, CreateTarget
 
 app = QApplication(sys.argv)
 
-class DropTargetTest(unittest.TestCase):
+class TestDropTarget(unittest.TestCase):
     def setUp(self):
         '''Create the widgets'''
         self.widget = QWidget()

@@ -2,14 +2,15 @@ sudo: required
 language: python
 # must be trusty for 'python3-pip' to be available
 dist: trusty 
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install python3-pip
 python:
   - 3.5
   - 3.6
+# lets install pip3
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install python3-pip
 # command to install dependencies
 install:
   - pip3 install -r requirements.txt
 # command to run tests
-script: python test/test_target_handling.py
+script: pytest
