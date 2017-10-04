@@ -18,6 +18,7 @@ def writeItems(items):
         s.setValue("name", value["name"])
         s.setValue("path", value["path"])
         s.setValue("icon", value["icon"])
+        s.setValue("desc", value["desc"])
     s.endArray();
 
 def readItems():
@@ -31,7 +32,8 @@ def readItems():
             "type": str(s.value("type")),
             "name": str(s.value("name")),
             "path": str(s.value("path")),
-            "icon": str(s.value("icon"))
+            "icon": str(s.value("icon")),
+            "desc": str(s.value("desc"))
         })
     s.endArray();
     return items

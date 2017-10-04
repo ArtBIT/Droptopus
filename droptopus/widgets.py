@@ -77,19 +77,19 @@ class IconWidget(QWidget):
         painter.drawPixmap(event.rect(), self.pixmap)
 
 class BaseDropWidget(QWidget):
-    def __init__(self, parent, name, index, icon):
+    def __init__(self, parent, conf):
         super(BaseDropWidget, self).__init__(parent)
         self.setAcceptDrops(True)
         self.in_context_menu = False
 
         width = 100
         height = 100
-        self.name = name
-        self.index = index
-        self.iconpath = icon
-        self.icon = IconWidget(self, icon)
+        self.name = conf["name"]
+        self.index = conf["index"]
+        self.iconpath = conf["icon"]
+        self.icon = IconWidget(self, conf["icon"])
         label = QLabel()
-        label.setText(name)
+        label.setText(conf["name"])
         label.setAlignment(Qt.AlignCenter)
         label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding);
         label.setMaximumWidth(width)
@@ -155,11 +155,14 @@ class BaseDropWidget(QWidget):
         self.style().drawPrimitive(QStyle.PE_Widget, opt, painter, self)
 
 class DropWidget(BaseDropWidget):
-    def __init__(self, parent, widget_type, name, index, icon, filepath):
-        super(DropWidget, self).__init__(parent, name, index, icon)
+    def __init__(self, parent, conf):
+        super(DropWidget, self).__init__(parent, conf)
         self.setAttribute(Qt.WA_OpaquePaintEvent)
-        self.type = widget_type
-        self.filepath = filepath
+        self.type = conf["type"]
+        self.filepath = conf["path"]
+        self.desc = conf["desc"]
+        if self.desc:
+            self.setToolTip(self.desc)
         self.actions = [
             ('Process Clipboard', self.onPasteFromClipboard),
             ('Process File...', self.onFileOpen),
@@ -226,6 +229,7 @@ class DropWidget(BaseDropWidget):
             "name": self.name,
             "path": self.filepath,
             "icon": self.iconpath,
+            "desc": self.desc,
         }
         form = EditItemForm(item, self)
         form.setModal(True)
@@ -291,7 +295,7 @@ class DirTarget(DropWidget):
                 fd.write(chunk)
             fd.close()
         ext = magic.from_file(tmp.name, mime=True).split('/')[1]
-        dest = join(self.filepath, utils.slugify(url.split('/').pop()) + '.' + ext)
+        dest = join(self.filepath, utils.slugify(url.split('/').pop())[:20] + '.' + ext)
         copyfile(tmp.name, dest)
         return 0, dest
 
@@ -320,12 +324,16 @@ class FileTarget(DropWidget):
         ret = subprocess.call([self.filepath, url])
         return ret, url
 
+    def mouseDoubleClickEvent(self, event):
+        subprocess.call(self.filepath)
+
 class CreateTarget(DropWidget):
     """
     A DropWidget that creates a DirTarget or FileTarget
     """
-    def __init__(self, parent, widget_type, name, index, icon, filepath):
-        super(CreateTarget, self).__init__(parent, 'builtin', name, index, icon, filepath)
+    def __init__(self, parent, conf):
+        conf["type"] = 'builtin'
+        super(CreateTarget, self).__init__(parent, conf)
         self.actions = [
             ('Create Folder Action...', self.onCreateFolderAction),
             ('Create Executable Action...', self.onCreateFileAction),
@@ -475,7 +483,7 @@ class DropTargetGrid(QWidget):
         layout = self.grid_layout;
         utils.clearLayout(layout)
         items = settings.readItems()
-        items.insert(0, {"type":"builtin", "name": "Create Action", "path": "", "icon": join(config.ASSETS_DIR, 'plus_white.png')})
+        items.insert(0, {"type":"builtin", "name": "Create Action", "path": "", "icon": join(config.ASSETS_DIR, 'plus_white.png'), "desc": "Create a new drop action"})
         total_items = len(items)
         # Try to make the grid as close to a square as possible, but favour horizontal rectangles
         root = math.sqrt(total_items)
@@ -489,23 +497,24 @@ class DropTargetGrid(QWidget):
             for i in range(cols):
                 if item_idx >= total_items:
                     break
-                layout.addWidget(self.instantiateWidget(items[item_idx], item_idx-1), j, i)
+                conf = items[item_idx].copy()
+                conf["index"] = item_idx-1
+                layout.addWidget(self.instantiateWidget(conf), j, i)
                 item_idx = item_idx + 1
 
 
-    def instantiateWidget(self, widget_info, index = None):
+    def instantiateWidget(self, conf):
         """
         A helper method to instantiat DropWidgets depeneding on the type.
         """
-        logging.info('Instantiating item { index: %s, type: %s, name: %s, path: %s, icon: %s }', index, widget_info['type'], widget_info['name'], widget_info['path'], widget_info['icon']) 
         m = sys.modules[__name__] # current module
         widget_classes = {
             "dir": getattr(m, 'DirTarget'), 
             "file": getattr(m, 'FileTarget'),
             "builtin": getattr(m, 'CreateTarget'),
         }
-        widget_class = widget_classes[widget_info['type']]
-        widget = widget_class(self, widget_info['type'], widget_info['name'], index, widget_info['icon'], widget_info['path'])
+        widget_class = widget_classes[conf['type']]
+        widget = widget_class(self, conf)
         return widget
 
 class DropFrame(QFrame):

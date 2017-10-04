@@ -25,13 +25,16 @@ class EditItemForm(QDialog):
         l1 = QLabel("Name:")
         name = QLineEdit()
 
-        l2 = QLabel("Icon:")
+        l2 = QLabel("Description:")
+        desc = QLineEdit()
+
+        l3 = QLabel("Icon:")
         icon = QLabel()
         btn_icon = QPushButton("...")
         btn_icon.setFixedWidth(50)
         btn_icon.clicked.connect(self.onChangeIcon)
 
-        l3 = QLabel("Target Path:")
+        l4 = QLabel("Target Path:")
         path = QLineEdit()
         path.setReadOnly(True)
         btn_path = QPushButton("...")
@@ -40,14 +43,15 @@ class EditItemForm(QDialog):
 
         layout = QFormLayout(self)
         layout.addRow(l1, name)
+        layout.addRow(l2, desc)
         row = QHBoxLayout()
         row.addWidget(icon)
         row.addWidget(btn_icon)
-        layout.addRow(l2, row)
+        layout.addRow(l3, row)
         row = QHBoxLayout()
         row.addWidget(path)
         row.addWidget(btn_path)
-        layout.addRow(l3, row)
+        layout.addRow(l4, row)
         buttons = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel,
             Qt.Horizontal, self)
@@ -58,12 +62,14 @@ class EditItemForm(QDialog):
         self.icon = icon
         self.name = name
         self.path = path
+        self.desc = desc
 
         self.loadItem(item)
 
     def loadItem(self, item):
         self.icon.setPixmap(QPixmap(item["icon"]).scaled(50, 50, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         self.name.setText(item["name"])
+        self.desc.setText(item["desc"])
         self.path.setText(item["path"])
         self.item = item
 
@@ -96,5 +102,6 @@ class EditItemForm(QDialog):
             return
 
         self.item['name'] = self.name.text()
+        self.item['desc'] = self.desc.text()
         settings.writeItem(self.item)
         self.close()
