@@ -390,7 +390,7 @@ class CreateTarget(DropWidget):
             settings.pushItem({
                 "type": 'dir',
                 "name": name,
-                "desc": name
+                "desc": name,
                 "path": context,
                 "icon": icon_filepath
             })
