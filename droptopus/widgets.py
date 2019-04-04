@@ -307,25 +307,22 @@ class FileTarget(DropWidget):
         """
         Processes passed filepath.
         """
-        ret = subprocess.call([self.filepath, filepath])
-        return ret, filepath
+        return subprocessCall([self.filepath, filepath])
 
     def handle_text(self, text):
         """
         Processes passed raw text.
         """
-        ret = subprocess.call([self.filepath, text])
-        return ret, text
+        return subprocessCall([self.filepath, text])
 
     def handle_url(self, url):
         """
         Processes passed URL.
         """
-        ret = subprocess.call([self.filepath, url])
-        return ret, url
+        return subprocessCall([self.filepath, url])
 
     def mouseDoubleClickEvent(self, event):
-        subprocess.call(self.filepath)
+        subprocessCall([self.filepath])
 
 class CreateTarget(DropWidget):
     """
@@ -540,3 +537,31 @@ class DropFrame(QFrame):
 
     def reload(self):
         self.content.reload()
+
+def showError(text, details):
+   msg = QMessageBox()
+   msg.setIcon(QMessageBox.Critical)
+
+   msg.setWindowTitle("Error")
+   msg.setText(text)
+   """
+   msg.setInformativeText("This is additional information")
+   """
+   msg.setDetailedText("The details are as follows: " + details)
+   msg.setStandardButtons(QMessageBox.Ok)
+   retval = msg.exec_()
+   print("value of pressed message box button:", retval)
+
+def subprocessCall(args):
+    cmd = args[0:1]
+    filepath = args[1:2]
+    ret = 0
+
+    try:
+        ret = subprocess.check_call(args)
+    except subprocess.CalledProcessError:
+        showError("Error executing subprocess call", "The subprocess failed for the following command " + "".join(args))
+    except OSError:
+        showError("Could not find executable", cmd)
+
+    return ret, filepath
