@@ -81,7 +81,7 @@ class App(QApplication):
     self.setStyleSheet(css) 
     self.mainWindow = MainWindow()
     self.mainWindow.show();
-    imageFilepath = join(config.ASSETS_DIR, 'droptopus.png')
-    appIcon = QIcon(QPixmap(imageFilepath).scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation))
-    self.setWindowIcon(appIcon)
 
+    iconFilepath = join(config.ASSETS_DIR, 'droptopus.png')
+    icon = QIcon(QPixmap(iconFilepath).scaled(50, 50, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+    self.setWindowIcon(icon)
