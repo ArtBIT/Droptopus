@@ -6,7 +6,7 @@
 Droptopus is a drag'n'drop receiver, which routes dropped objects to the designated actions.
 
 # Dependencies 
- - python3
+ - python3.5+
  - pyqt5
 
 # Installation
