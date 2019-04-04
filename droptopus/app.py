@@ -4,6 +4,10 @@ from os.path import join
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import (
     QIcon,
+    QPixmap,
+)
+from PyQt5.QtCore import (
+    Qt,
 )
 from droptopus import config, settings, args
 from droptopus.window import MainWindow
@@ -77,6 +81,7 @@ class App(QApplication):
     self.setStyleSheet(css) 
     self.mainWindow = MainWindow()
     self.mainWindow.show();
-    appIcon = QIcon(join(config.ASSETS_DIR, 'droptopus.png'))
+    imageFilepath = join(config.ASSETS_DIR, 'droptopus.png')
+    appIcon = QIcon(QPixmap(imageFilepath).scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation))
     self.setWindowIcon(appIcon)
 
