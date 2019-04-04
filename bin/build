@@ -1,0 +1,8 @@
+#!/bin/bash
+
+script_name=$0
+script_full_path=$(dirname "$script_name")
+$script_full_path/version --bump
+
+rm -r dist build
+python3 setup.py sdist bdist_wheel

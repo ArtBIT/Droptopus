@@ -1,0 +1,48 @@
+#!/bin/bash
+## Semantic versioning helper
+
+SCRIPT_NAME=$0
+SCRIPT_FULL_PATH=$(dirname "$SCRIPT_NAME")
+VERSION_FILEPATH=$(realpath "$SCRIPT_FULL_PATH/../droptopus/version.py")
+
+get_version() {
+    cat "$VERSION_FILEPATH" | grep -o "[0-9.]\+"
+}
+set_version() {
+    echo "__version__='$*'" > "$VERSION_FILEPATH"
+}
+
+while true; do
+  ## OPTIONS:
+  case "$1" in
+    -h | --help)        ## Show this screen.
+        cat "$BASH_SOURCE" | grep '##' | grep -v 'grep' | sed -e 's/^##//g' -e 's/)//g' -e 's/##//g'
+        exit 1
+        ;;
+    --bump)             ## Bump the version
+        shift
+
+        IFS='.' read -r major minor patch <<< $(get_version)
+        case "$1" in
+            major)      ## Bump major version part
+                major=$((major + 1))
+                minor=0
+                patch=0
+            ;;
+            minor)      ## Bump minor version part
+                minor=$((minor + 1))
+                patch=0
+            ;;
+            patch | *)  ## Bump patch version part
+                patch=$((patch + 1))
+            ;;
+        esac
+        echo "$major.$minor.$patch"
+        set_version "$major.$minor.$patch"
+        break;
+        ;;
+    * )
+        get_version
+        break;
+  esac
+done
