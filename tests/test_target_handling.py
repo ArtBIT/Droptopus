@@ -1,3 +1,4 @@
+# coding=utf-8
 """
 This is module for testing the most basic functionality of Droptopus
 """
