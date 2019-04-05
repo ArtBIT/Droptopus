@@ -35,14 +35,14 @@ Thanks!
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE.md][github-license-href] file for details
 
 [droptopus-logo-src]: https://raw.githubusercontent.com/ArtBIT/Droptopus/master/droptopus/assets/droptopus.png
 [build-status-href]: https://travis-ci.org/ArtBIT/droptopus
 [build-status-src]: https://travis-ci.org/ArtBIT/droptopus.svg
 [github-issues-href]: https://github.com/ArtBIT/droptopus/issues
 [github-issues-src]: https://img.shields.io/github/issues/ArtBIT/droptopus.svg
-[github-license-href]: https://github.com/ArtBIT/droptopus
+[github-license-href]: https://github.com/ArtBIT/Droptopus/blob/master/LICENSE.md
 [github-license-src]: https://img.shields.io/github/license/ArtBIT/droptopus.svg
 [github-stars-href]: https://github.com/ArtBIT/droptopus
 [github-stars-src]: https://img.shields.io/github/stars/ArtBIT/droptopus.svg
