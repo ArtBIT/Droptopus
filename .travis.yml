@@ -11,10 +11,10 @@ before_install:
   - sudo apt-get install python3-pip python3-magic python3-pytest
 # command to install dependencies
 install:
-  - pip3 install .
-  - travis_retry pip3 install -U pytest>=4.0.1 pytest-cov>=2.6.0;
+  - pip install .
+  - travis_retry pip install -U pytest>=4.0.1 pytest-cov>=2.6.0;
 # command to run tests
 script:
   - pytest --version;
-  - python3 -m pytest --version;
-  - python3 -m pytest tests/
+  - python -m pytest --version;
+  - python -m pytest tests/
