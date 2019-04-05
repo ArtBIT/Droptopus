@@ -16,7 +16,7 @@ class TestDropTarget(unittest.TestCase):
         """Create the widgets"""
         app = QApplication(sys.argv)
         self.widget = QWidget()
-        self.create_target = self.instantiate_widget(
+        self.create_target = self.instantiateWidget(
             {
                 "desc": "",
                 "type": "builtin",
@@ -26,7 +26,7 @@ class TestDropTarget(unittest.TestCase):
                 "index": 0,
             }
         )
-        self.dir_target = self.instantiate_widget(
+        self.dir_target = self.instantiateWidget(
             {
                 "desc": "",
                 "type": "dir",
@@ -36,7 +36,7 @@ class TestDropTarget(unittest.TestCase):
                 "index": 1,
             }
         )
-        self.file_target = self.instantiate_widget(
+        self.file_target = self.instantiateWidget(
             {
                 "desc": "",
                 "type": "file",
@@ -47,7 +47,7 @@ class TestDropTarget(unittest.TestCase):
             }
         )
 
-    def instantiate_widget(self, conf):
+    def instantiateWidget(self, conf):
         """Helper method to create the widgets"""
         widget_type = conf["type"]
 
@@ -62,7 +62,7 @@ class TestDropTarget(unittest.TestCase):
 
         return None
 
-    def test_handle_urls(self):
+    def testHandleUrls(self):
         """Test URL handling"""
         urls = [
             "https://i.imgur.com/7VEHUX9.jpg",
