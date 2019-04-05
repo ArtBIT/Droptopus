@@ -12,6 +12,9 @@ before_install:
 # command to install dependencies
 install:
   - pip3 install .
-  - pip3 install pytest
+  - travis_retry pip3 install -U pytest>=4.0.1 pytest-cov>=2.6.0;
 # command to run tests
-script: pytest tests
+script:
+  - pytest --version;
+  - python3 -m pytest --version;
+  - python3 -m pytest tests/
