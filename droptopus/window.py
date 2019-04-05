@@ -14,19 +14,8 @@ import sys
 from droptopus import config, settings, utils, __version__
 from droptopus.widgets import DropFrame, events
 
-from PyQt5.QtGui import (
-    QIcon,
-    QPainter,
-    QPixmap,
-)
-from PyQt5.QtCore import (
-    QEvent,
-    QSettings,
-    QSize,
-    Qt,
-    QPoint,
-    QTimer,
-)
+from PyQt5.QtGui import QIcon, QPainter, QPixmap
+from PyQt5.QtCore import QEvent, QSettings, QSize, Qt, QPoint, QTimer
 from PyQt5.QtWidgets import (
     QApplication,
     QDesktopWidget,
@@ -52,12 +41,15 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
+
 class MiniWindow(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.parent = parent
-        icon = join(config.ASSETS_DIR, 'droptopus.png')
-        self.pixmap = QPixmap(icon).scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        icon = join(config.ASSETS_DIR, "droptopus.png")
+        self.pixmap = QPixmap(icon).scaled(
+            100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation
+        )
         self.icon_width = self.pixmap.width()
         self.icon_height = self.pixmap.height()
         self.setFixedWidth(self.icon_width)
@@ -70,10 +62,16 @@ class MiniWindow(QWidget):
     def sizeHint(self):
         return QSize(self.icon_width, self.icon_height)
 
+
 class DarkDialog(QDialog):
     def __init__(self, parent):
         super(DarkDialog, self).__init__(parent)
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool | Qt.WA_MacAlwaysShowToolWindow )
+        self.setWindowFlags(
+            Qt.FramelessWindowHint
+            | Qt.WindowStaysOnTopHint
+            | Qt.Tool
+            | Qt.WA_MacAlwaysShowToolWindow
+        )
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setMouseTracking(True)
         self.is_move_action = False
@@ -95,7 +93,7 @@ class DarkDialog(QDialog):
         y = event.globalY()
         x_w = self.offset.x()
         y_w = self.offset.y()
-        self.move(x-x_w, y-y_w)
+        self.move(x - x_w, y - y_w)
 
     def paintEvent(self, event):
         opt = QStyleOption()
@@ -105,7 +103,7 @@ class DarkDialog(QDialog):
 
 
 class AboutDialog(DarkDialog):
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super(AboutDialog, self).__init__(parent)
 
         main_layout = QVBoxLayout(self)
@@ -114,30 +112,34 @@ class AboutDialog(DarkDialog):
 
         layout = QHBoxLayout()
         # add icon
-        icon = join(config.ASSETS_DIR, 'droptopus.png')
+        icon = join(config.ASSETS_DIR, "droptopus.png")
         label = QLabel()
-        label.setPixmap(QPixmap(icon).scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        label.setPixmap(
+            QPixmap(icon).scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        )
         layout.addWidget(label)
 
         info_layout = QVBoxLayout()
         # add title
         label = QLabel()
-        label.setObjectName('title')
-        label.setText('Droptopus')
+        label.setObjectName("title")
+        label.setText("Droptopus")
         info_layout.addWidget(label)
         label = QLabel()
-        label.setText('v'+__version__.__version__)
+        label.setText("v" + __version__.__version__)
         info_layout.addWidget(label)
         info_layout.addStretch()
         # about text
         self.label = QLabel(self)
         self.label.setOpenExternalLinks(True)
-        self.label.setText("""
+        self.label.setText(
+            """
             <div><strong>Author:</strong> Djordje Ungar</div>
             <div><strong>Source:</strong> <a href="https://github.com/ArtBIT/Droptopus" style="color:white">GitHub</a></div>
             <div><strong>Icons:</strong> <a href="http://icons8.com/license" style="color:white">Icons8</a></div>
             <br>
-        """);
+        """
+        )
         info_layout.addWidget(self.label)
         info_layout.addStretch()
         layout.addLayout(info_layout)
@@ -146,13 +148,12 @@ class AboutDialog(DarkDialog):
         main_layout.addLayout(layout)
 
         # OK and Cancel buttons
-        buttons = QDialogButtonBox(
-            QDialogButtonBox.Ok,
-            Qt.Horizontal, self)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok, Qt.Horizontal, self)
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         main_layout.addWidget(buttons)
-        self.resize(300,200)
+        self.resize(300, 200)
+
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -167,7 +168,7 @@ class MainWindow(QMainWindow):
         self.setAttribute(Qt.WA_NoSystemBackground, True)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setAttribute(Qt.WA_QuitOnClose)
-        self.setWindowIcon(QIcon(join(config.ASSETS_DIR, 'droptopus.png')))
+        self.setWindowIcon(QIcon(join(config.ASSETS_DIR, "droptopus.png")))
         self.setWindowTitle("Droptopus")
 
         self.miniwin = MiniWindow(self)
@@ -178,8 +179,8 @@ class MainWindow(QMainWindow):
 
         self.content = QStackedWidget()
         self.setCentralWidget(self.content)
-        self.content.addWidget(self.frame);
-        self.content.addWidget(self.miniwin);
+        self.content.addWidget(self.frame)
+        self.content.addWidget(self.miniwin)
 
         self.setAcceptDrops(True)
         self.setMouseTracking(True)
@@ -187,7 +188,7 @@ class MainWindow(QMainWindow):
 
     def contextMenuEvent(self, event):
         menu = QMenu(self)
-        label = ('Expand', 'Collapse')[self.is_expanded]
+        label = ("Expand", "Collapse")[self.is_expanded]
         expand_action = menu.addAction(label)
         about_action = menu.addAction("About")
         menu.addSeparator()
@@ -265,40 +266,48 @@ class MainWindow(QMainWindow):
         y = event.globalY()
         x_w = self.offset.x()
         y_w = self.offset.y()
-        self.move(x-x_w, y-y_w)
+        self.move(x - x_w, y - y_w)
         if self.content.currentWidget() == self.miniwin:
             self.anchor = self.pos()
 
     def writeSettings(self):
-        self.settings.beginGroup("MainWindow");
-        self.settings.setValue("anchor", self.anchor);
-        self.settings.endGroup();
+        self.settings.beginGroup("MainWindow")
+        self.settings.setValue("anchor", self.anchor)
+        self.settings.endGroup()
 
     def readSettings(self):
-        self.settings.beginGroup("MainWindow");
-        saved_anchor = self.settings.value("anchor", None);
+        self.settings.beginGroup("MainWindow")
+        saved_anchor = self.settings.value("anchor", None)
         if saved_anchor != None:
-            self.anchor = saved_anchor;
+            self.anchor = saved_anchor
         else:
             rect = QDesktopWidget().screenGeometry()
             mini = self.miniwin.sizeHint()
-            self.anchor = QPoint(rect.right() - mini.width(), rect.bottom() - mini.height())
-        self.settings.endGroup();
+            self.anchor = QPoint(
+                rect.right() - mini.width(), rect.bottom() - mini.height()
+            )
+        self.settings.endGroup()
 
     def userReallyWantsToQuit(self):
         if not self.should_confirm_close:
             return True
-        reply = QMessageBox.question(self, 'Close Droptopus', 'Are you sure you want to close the application?', QMessageBox.Yes, QMessageBox.No)
+        reply = QMessageBox.question(
+            self,
+            "Close Droptopus",
+            "Are you sure you want to close the application?",
+            QMessageBox.Yes,
+            QMessageBox.No,
+        )
         return reply == QMessageBox.Yes
 
     def closeEvent(self, event):
         if self.userReallyWantsToQuit():
-            self.writeSettings();
-            event.accept();
+            self.writeSettings()
+            event.accept()
         else:
-            event.ignore();
+            event.ignore()
 
-    #def dragMoveEvent(self, event):
+    # def dragMoveEvent(self, event):
     #    super(MainWindow, self).dragMoveEvent(event)
 
     def dragEnterEvent(self, event):
@@ -333,4 +342,3 @@ class MainWindow(QMainWindow):
             self.close()
             return True
         return super(MainWindow, self).event(evt)
-

@@ -3,16 +3,24 @@ import logging
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    '-d', '--debug',
+    "-d",
+    "--debug",
     help="Print lots of debugging statements",
-    action="store_const", dest="loglevel", const=logging.DEBUG,
+    action="store_const",
+    dest="loglevel",
+    const=logging.DEBUG,
     default=logging.WARNING,
 )
 parser.add_argument(
-    '-v', '--verbose',
+    "-v",
+    "--verbose",
     help="Be verbose",
-    action="store_const", dest="loglevel", const=logging.INFO,
+    action="store_const",
+    dest="loglevel",
+    const=logging.INFO,
 )
-args = parser.parse_args()    
+args = parser.parse_args()
 
-logging.basicConfig(format='%(asctime)s | %(message)s', filename='debug.log', level=args.loglevel)
+logging.basicConfig(
+    format="%(asctime)s | %(message)s", filename="debug.log", level=args.loglevel
+)

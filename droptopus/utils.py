@@ -2,15 +2,17 @@ import re
 import unicodedata
 from PyQt5.QtWidgets import QApplication
 
+
 def slugify(value):
     """
     Normalizes string, converts to lowercase, removes non-alpha characters,
     and converts spaces to hyphens.
     """
-    value = str(unicodedata.normalize('NFKD', value).encode('ascii', 'ignore'))
-    value = re.sub(r'[^\w\s-]', '', value).strip().lower()
-    value = re.sub(r'[-\s]+', '-', value)
+    value = str(unicodedata.normalize("NFKD", value).encode("ascii", "ignore"))
+    value = re.sub(r"[^\w\s-]", "", value).strip().lower()
+    value = re.sub(r"[-\s]+", "-", value)
     return value
+
 
 # Remove all items from the layout
 def clearLayout(layout):
@@ -31,14 +33,16 @@ def propagateEvent(self, evt):
     while target:
         app.sendEvent(target, evt)
         if not evt.isAccepted():
-            if hasattr(target, 'parent'):
+            if hasattr(target, "parent"):
                 target = target.parent()
         else:
             target = None
     return evt.isAccepted()
 
+
 class dotdict(dict):
     """dot.notation access to dictionary attributes"""
+
     __getattr__ = dict.get
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__
