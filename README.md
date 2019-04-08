@@ -32,6 +32,9 @@ Droptopus uses
 
 Thanks!
 
+## Sponsors
+
+[![Become a sponsor][patreon-src]][patreon-href]
 
 ## License
 
@@ -52,3 +55,5 @@ This project is licensed under the MIT License - see the [LICENSE.md][github-lic
 [qt-href]: http://qt.nokia.com
 [riverbank-href]: http://www.riverbankcomputing.co.uk
 [sip-href]: http://www.riverbankcomputing.co.uk/software/sip/intro
+[patreon-src]: https://img.shields.io/badge/Patreon-Sponsor%20This-orange.svg
+[patreon-href]: https://www.patreon.com/artbit
