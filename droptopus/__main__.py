@@ -1,9 +1,8 @@
-import sys
-from droptopus.app import App
-
-def main():
-    app = App()
-    sys.exit(app.exec_())
-
-if __name__ == '__main__':
-    main()  
+"""
+Droptopus
+description: Drag'n'drop router that routes the dropped object to the specified action.
+author: Djordje Ungar
+website: https://github.com/ArtBIT/Droptopus
+"""
+from __init__ import main
+main()
