@@ -37,7 +37,7 @@ setup(
         "PyQt5",
         "python-magic",
         "requests>=2.21.0",
-        "urllib3==1.24.1",
+        "urllib3==1.26.5",
     ],
     project_urls={
         'Bug Reports': 'https://github.com/ArtBIT/Droptopus/issues',
