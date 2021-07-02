@@ -1,6 +1,6 @@
 import sys
 import logging
-from os.path import join
+from os.path import dirname, join
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import Qt
@@ -11,7 +11,8 @@ class App(QApplication):
     def __init__(self, args=None):
         logging.info("Initializing Droptopus App")
         super(App, self).__init__([config.APP_NAME])
-        self.setStyleSheet(open('app.css').read())
+        script_dir = dirname(__file__)
+        self.setStyleSheet(open(join(script_dir, 'app.css')).read())
         self.mainWindow = MainWindow()
         self.mainWindow.show()
 
