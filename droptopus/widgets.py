@@ -171,13 +171,19 @@ class DropWidget(BaseDropWidget):
         ]
 
     def handle(self, context):
-        context = super(DropWidget, self).handle(context)
-        if re_url.match(context):
-            return self.handle_url(context)
-        elif isfile(context):
-            return self.handle_filepath(context)
-        else:
-            return self.handle_text(context)
+        try:
+            context = super(DropWidget, self).handle(context)
+            if re_url.match(context):
+                return self.handle_url(context)
+            elif isfile(context):
+                return self.handle_filepath(context)
+            else:
+                return self.handle_text(context)
+        except:
+            QMessageBox.critical(
+                self, "Error", "Could not execute action.", QMessageBox.Ok
+            )
+
 
     def mouseDoubleClickEvent(self, event):
         if sys.platform.startswith("darwin"):
@@ -593,8 +599,8 @@ def showError(text, details):
     msg.setWindowTitle("Error")
     msg.setText(text)
     """
-   msg.setInformativeText("This is additional information")
-   """
+    msg.setInformativeText("This is additional information")
+    """
     msg.setDetailedText("The details are as follows: " + details)
     msg.setStandardButtons(QMessageBox.Ok)
     retval = msg.exec_()
