@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 from os import path
-exec(open('droptopus/version.py').read())
+exec(open('droptopus/__version__.py').read())
 
 here = path.abspath(path.dirname(__file__))
 
