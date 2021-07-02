@@ -10,6 +10,7 @@ import logging
 
 from os import rename
 from shutil import copyfile
+from urllib.parse import urlparse, unquote
 from os.path import isfile, isdir, join, expanduser
 from droptopus import config, settings, utils
 from droptopus.forms import EditItemForm
@@ -175,8 +176,8 @@ class DropWidget(BaseDropWidget):
             context = super(DropWidget, self).handle(context)
             if re_url.match(context):
                 return self.handle_url(context)
-            elif isfile(context):
-                return self.handle_filepath(context)
+            elif isFile(context):
+                return self.handle_filepath(getFilePath(context))
             else:
                 return self.handle_text(context)
         except:
@@ -281,6 +282,7 @@ class DirTarget(DropWidget):
         Processes passed filepath.
         """
         dest = join(self.filepath, os.path.basename(filepath))
+        logging.info("DirTarget.handle_filepath: %s", dest)
         copyfile(filepath, dest)
         return 0, dest
 
@@ -291,6 +293,7 @@ class DirTarget(DropWidget):
         tmp = next(tempfile._get_candidate_names())
         tmp = join(self.filepath, tmp) + ".txt"
         text_file = open(tmp, "w")
+        logging.info("DirTarget.handle_text: %s", text)
         text_file.write(text.encode("utf8"))
         text_file.close()
         return 0, tmp
@@ -299,6 +302,7 @@ class DirTarget(DropWidget):
         """
         Processes passed URL.
         """
+        logging.info("DirTarget.handle_url: %s", url)
         tmp = tempfile.NamedTemporaryFile(delete=False)
         r = requests.get(url)
         with open(tmp.name, "wb") as fd:
@@ -320,18 +324,21 @@ class FileTarget(DropWidget):
         """
         Processes passed filepath.
         """
+        logging.info("FileTarget.handle_filepath: %s", self.filepath + " " + filepath)
         return subprocessCall([self.filepath, filepath])
 
     def handle_text(self, text):
         """
         Processes passed raw text.
         """
+        logging.info("FileTarget.handle_text: %s", self.filepath + " " + text)
         return subprocessCall([self.filepath, text])
 
     def handle_url(self, url):
         """
         Processes passed URL.
         """
+        logging.info("FileTarget.handle_url: %s", self.filepath + " " + url)
         return subprocessCall([self.filepath, url])
 
     def mouseDoubleClickEvent(self, event):
@@ -606,6 +613,13 @@ def showError(text, details):
     retval = msg.exec_()
     print("value of pressed message box button:", retval)
 
+def getFilePath(context):
+    return unquote(urlparse(context.rstrip()).path)
+
+def isFile(context):
+    filecontext = getFilePath(context)
+    logging.info("isFile: %s? %s", filecontext, str(isfile(filecontext)))
+    return isfile(filecontext)
 
 def subprocessCall(args):
     cmd = args[0:1]
@@ -617,7 +631,7 @@ def subprocessCall(args):
     except subprocess.CalledProcessError:
         showError(
             "Error executing subprocess call",
-            "The subprocess failed for the following command " + "".join(args),
+            "The subprocess failed for the following command " + " ".join(args),
         )
     except OSError:
         showError("Could not find executable", cmd)
