@@ -12,7 +12,7 @@ class App(QApplication):
         logging.info("Initializing Droptopus App")
         super(App, self).__init__([config.APP_NAME])
         script_dir = dirname(__file__)
-        self.setStyleSheet(open(join(script_dir, 'app.css')).read())
+        self.setStyleSheet(open(join(script_dir, 'assets', 'app.css')).read())
         self.mainWindow = MainWindow()
         self.mainWindow.show()
 

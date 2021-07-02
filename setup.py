@@ -30,7 +30,7 @@ setup(
     keywords="sample setuptools development",
     packages=["droptopus"],
     package_data={
-        "droptopus": ["assets/*.png"]
+        "droptopus": ["assets/*.png", "assets/*.css"]
     },
     include_package_data=True,
     install_requires=[
