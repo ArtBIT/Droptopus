@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+. "$(dirname "$0")/common"
+
+# 
+# Parameter	Description	Example
+#
+# description   Pre-populated text highlighted in the Pin composer.
+# url	        URL included with the Pin
+# media	        URL to the image
+#
+
+declare -A params
+params["url"]=$1
+#params["media"]=$1
+params["description"]="Shared from droptopus"
+
+url="http://pinterest.com/pin/create/button/"
+glue="?"
+for param in "${!params[@]}"; do 
+    url+=$glue
+    url+=$param
+    url+="="
+    url+=$(urlencode ${params[$param]})
+    glue="&"
+done
+
+echo $(os_open $url )

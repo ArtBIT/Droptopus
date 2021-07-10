@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Define a helper function that `curl`s the dropped URLs to a local file.
+get_filepath() {
+FILEPATH="$1"
+if [ ! -f "$FILEPATH" ]; then
+    URL_REGEX='(https?|ftp|file)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
+    if [[ $FILEPATH =~ $URL_REGEX ]]
+    then 
+        URL=$FILEPATH
+        TMP=$(mktemp /tmp/ungame.XXXXXX)
+        curl -Ls $URL > $TMP
+        EXTENSION=$(mimetype $TMP | cut -d ' ' -f2 | cut -d '/' -f2)
+        FILEPATH="$TMP.$EXTENSION"
+        mv $TMP "$FILEPATH"
+    fi
+fi
+echo $FILEPATH
+}
+
+# os_open is a helper function that opens the file using user's preferred application
+os_open() {
+    if command -v xdg-open &> /dev/null; then
+        xdg-open "$*"
+        exit
+    fi
+    if command -v open &> /dev/null; then
+        open "$*"
+        exit
+    fi
+}
+
+# Bash version of simple urlencode
+urlencode() {
+    echo $* | xxd -plain | tr -d '\n' | sed 's/\(..\)/%\1/g'
+}
+

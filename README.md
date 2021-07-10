@@ -6,7 +6,7 @@
 # Droptopus
 ![Droptopus Logo][droptopus-logo-src]
 
-Droptopus is a drag'n'drop receiver, which routes dropped objects to the designated actions.
+Droptopus allows you create visual drop targets for files, links, and text, allowing you to process the dragged object via script or copy it to a folder.
 
 # Dependencies 
  - python3.5+
@@ -17,6 +17,10 @@ Droptopus is a drag'n'drop receiver, which routes dropped objects to the designa
 
 # Launch
  `python3 -m droptopus &`
+
+# Example scripts
+
+  Check the [examples][examples-href] directory for some useful drop actions.
 
 ## Acknowledgements
 
@@ -57,3 +61,4 @@ This project is licensed under the MIT License - see the [LICENSE.md][github-lic
 [sip-href]: http://www.riverbankcomputing.co.uk/software/sip/intro
 [patreon-src]: https://img.shields.io/badge/Patreon-Sponsor%20This-orange.svg
 [patreon-href]: https://www.patreon.com/artbit
+[examples-href]: https://github.com/ArtBIT/Droptopus/tree/master/examples

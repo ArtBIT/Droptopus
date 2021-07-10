@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+# 
+# Parameter	Description	Example
+#
+# text	    Pre-populated text highlighted in the Tweet composer.
+#               custom share text
+# url	    URL included with the Tweet.      
+#               https://dev.twitter.com/web/tweet-button
+# hashtags	A comma-separated list of hashtags to be appended to tweet
+#               example,demo
+# via	    Attribute the source of a Tweet to a Twitter username.	        
+#               twitterdev
+# related	A comma-separated list of accounts related to the content
+#               twitterapi, twitter
+#
+
+. "$(dirname "$0")/common"
+
+declare -A params
+params["text"]="$*"
+params["hashtags"]="droptopus"
+params["via"]="droptopus"
+
+url="https://twitter.com/intent/tweet"
+glue="?"
+for param in "${!params[@]}"; do 
+    url+=$glue
+    url+=$param
+    url+="="
+    url+=$(urlencode ${params[$param]})
+    glue="&"
+done
+echo $url
+
+echo $(os_open $url)

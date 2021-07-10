@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+. "$(dirname "$0")/common"
+
+TARGET_HOSTNAME=some-local-machine.local
+TARGET_PATHNAME=~/Downloads
+SOURCE_FILE=$(get_filepath "$1")
+
+scp "$SOURCE_FILE" "$TARGET_HOSTNAME:$TARGET_PATHNAME"

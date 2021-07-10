@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+if command -v espeak &> /dev/null; then
+    espeak "$*"
+    exit
+fi
+if command -v say &> /dev/null; then
+    say "$*"
+    exit
+fi
