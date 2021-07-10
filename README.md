@@ -8,9 +8,9 @@
 
 Droptopus allows you create visual drop targets for files, links, and text, allowing you to process the dragged object via script or copy it to a folder.
 
-<img src="https://raw.githubusercontent.com/ArtBIT/Droptopus/master/images/droptopus-collapsed.png?v=1" width="auto" height="100" />
-<img src="https://raw.githubusercontent.com/ArtBIT/Droptopus/master/images/droptopus-expanded.png?v=1" width="auto" height="100" />
-<img src="https://raw.githubusercontent.com/ArtBIT/Droptopus/master/images/droptopus-right-click.png?v=1" width="auto" height="100" />
+<img src="https://raw.githubusercontent.com/ArtBIT/Droptopus/master/images/droptopus-collapsed.png?v=2" width="auto" height="100" />
+<img src="https://raw.githubusercontent.com/ArtBIT/Droptopus/master/images/droptopus-expanded.png?v=2" width="auto" height="100" />
+<img src="https://raw.githubusercontent.com/ArtBIT/Droptopus/master/images/droptopus-right-click.png?v=2" width="auto" height="100" />
 
 
 # Dependencies 
