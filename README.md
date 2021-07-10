@@ -8,6 +8,11 @@
 
 Droptopus allows you create visual drop targets for files, links, and text, allowing you to process the dragged object via script or copy it to a folder.
 
+![Droptopus Screenshot 1][droptopus-screenshot-1-src]
+![Droptopus Screenshot 2][droptopus-screenshot-2-src]
+![Droptopus Screenshot 3][droptopus-screenshot-3-src]
+
+
 # Dependencies 
  - python3.5+
  - pyqt5
@@ -19,7 +24,6 @@ Droptopus allows you create visual drop targets for files, links, and text, allo
  `python3 -m droptopus &`
 
 # Example scripts
-
   Check the [examples][examples-href] directory for some useful drop actions.
 
 ## Acknowledgements
@@ -62,3 +66,6 @@ This project is licensed under the MIT License - see the [LICENSE.md][github-lic
 [patreon-src]: https://img.shields.io/badge/Patreon-Sponsor%20This-orange.svg
 [patreon-href]: https://www.patreon.com/artbit
 [examples-href]: https://github.com/ArtBIT/Droptopus/tree/master/examples
+[droptopus-screenshot-1]: https://github.com/ArtBIT/Droptopus/tree/master/images/droptopus-collapsed.png
+[droptopus-screenshot-2]: https://github.com/ArtBIT/Droptopus/tree/master/images/droptopus-expanded.png
+[droptopus-screenshot-3]: https://github.com/ArtBIT/Droptopus/tree/master/images/droptopus-right-click.png
