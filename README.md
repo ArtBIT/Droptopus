@@ -66,6 +66,6 @@ This project is licensed under the MIT License - see the [LICENSE.md][github-lic
 [patreon-src]: https://img.shields.io/badge/Patreon-Sponsor%20This-orange.svg
 [patreon-href]: https://www.patreon.com/artbit
 [examples-href]: https://github.com/ArtBIT/Droptopus/tree/master/examples
-[droptopus-screenshot-1]: https://github.com/ArtBIT/Droptopus/tree/master/images/droptopus-collapsed.png
-[droptopus-screenshot-2]: https://github.com/ArtBIT/Droptopus/tree/master/images/droptopus-expanded.png
-[droptopus-screenshot-3]: https://github.com/ArtBIT/Droptopus/tree/master/images/droptopus-right-click.png
+[droptopus-screenshot-1]: https://raw.githubusercontent.com/ArtBIT/Droptopus/master/images/droptopus-collapsed.png
+[droptopus-screenshot-2]: https://raw.githubusercontent.com/ArtBIT/Droptopus/master/images/droptopus-expanded.png
+[droptopus-screenshot-3]: https://raw.githubusercontent.com/ArtBIT/Droptopus/master/images/droptopus-right-click.png
