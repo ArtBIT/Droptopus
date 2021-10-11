@@ -4,5 +4,5 @@ description: Drag'n'drop router that routes the dropped object to the specified 
 author: Djordje Ungar
 website: https://github.com/ArtBIT/Droptopus
 """
-from __init__ import main
+from droptopus.__init__ import main
 main()
