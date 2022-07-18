@@ -174,7 +174,7 @@ class DropWidget(BaseDropWidget):
     def handle(self, context):
         try:
             context = super(DropWidget, self).handle(context)
-            if re_url.match(context):
+            if isUrl(context):
                 return self.handle_url(context)
             elif isFile(context):
                 return self.handle_filepath(getFilePath(context))
@@ -620,6 +620,9 @@ def isFile(context):
     filecontext = getFilePath(context)
     logging.info("isFile: %s? %s", filecontext, str(isfile(filecontext)))
     return isfile(filecontext)
+
+def isUrl(context):
+    return re_url.match(context):
 
 def subprocessCall(args):
     cmd = args[0:1]
