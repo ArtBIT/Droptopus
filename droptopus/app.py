@@ -9,7 +9,7 @@ from droptopus.window import MainWindow
 
 class App(QApplication):
     def __init__(self, args=None):
-        logging.info("Initializing Droptopus App")
+        logging.info("Initializing Droptopus App " + config.VERSION)
         super(App, self).__init__([config.APP_NAME])
         script_dir = dirname(__file__)
         self.setStyleSheet(open(join(script_dir, 'assets', 'app.css')).read())

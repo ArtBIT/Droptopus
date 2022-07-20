@@ -1,13 +1,13 @@
 MiniWindow,
 DropTitleBar {
-    Background: transparent;
+    background: transparent;
 }
 MainWindow {
     font-size: 12px;
     color: black;
-    Background: transparent;
+    background: transparent;
     color: white;
-    font:12px bold;
+    font: 12px bold;
     font-weight: bold;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
@@ -53,8 +53,9 @@ AboutDialog QLabel#title {
 DropWidget {
     background-color: rgba(0,0,0,0%);
 }
-DropWidget[draggedOver=true],
-DropWidget[hover=true] {
-    background-color: rgba(255,255,255,5%);
+DropWidget[hover="true"] {
+    background-color: rgba(255, 255, 255, 5%);
 }
-
+DropWidget[draggedOver="true"] {
+    background-color: rgba(200, 255, 200, 5%);
+}

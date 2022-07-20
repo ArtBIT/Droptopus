@@ -1,17 +1,14 @@
 import os
 import sys
-import re
 import magic
 import requests
 import math
 import tempfile
-import subprocess
 import logging
 
 from os import rename
 from shutil import copyfile
-from urllib.parse import urlparse, unquote
-from os.path import isfile, isdir, join, expanduser
+from os.path import join, expanduser
 from droptopus import config, settings, utils
 from droptopus.forms import EditItemForm
 
@@ -48,17 +45,6 @@ events = utils.dotdict(
         "CLOSE_WINDOW": QEvent.registerEventType(1340),
     }
 )
-
-re_url = re.compile(
-    r"^(?:(?:http|ftp)s?://)?"  # http:// or https://
-    r"(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|"  # domain...
-    r"localhost|"  # localhost...
-    r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"  # ...or ip
-    r"(?::\d+)?"  # optional port
-    r"(?:/?|[/?]\S+)$",
-    re.IGNORECASE,
-)
-
 
 class IconWidget(QWidget):
     def __init__(self, parent, icon, width=48, height=48):
@@ -174,25 +160,18 @@ class DropWidget(BaseDropWidget):
     def handle(self, context):
         try:
             context = super(DropWidget, self).handle(context)
-            if isUrl(context):
+            if utils.isUrl(context):
                 return self.handle_url(context)
-            elif isFile(context):
-                return self.handle_filepath(getFilePath(context))
+            elif utils.isFile(context):
+                return self.handle_filepath(utils.getFilePath(context))
             else:
                 return self.handle_text(context)
         except:
-            QMessageBox.critical(
-                self, "Error", "Could not execute action.", QMessageBox.Ok
-            )
+            showError("Could not execute action.")
 
 
     def mouseDoubleClickEvent(self, event):
-        if sys.platform.startswith("darwin"):
-            subprocess.call(("open", self.filepath))
-        elif os.name == "nt":
-            os.startfile(self.filepath)
-        elif os.name == "posix":
-            subprocess.call(("xdg-open", self.filepath))
+        utils.osOpen(self.filepath)
 
     def enterEvent(self, event):
         self.setStyleProperty("hover", True)
@@ -325,24 +304,37 @@ class FileTarget(DropWidget):
         Processes passed filepath.
         """
         logging.info("FileTarget.handle_filepath: %s", self.filepath + " " + filepath)
-        return subprocessCall([self.filepath, filepath])
+
+        try:
+            return utils.subprocessCall([self.filepath, filepath])
+        except Exception as e:
+            showError(e)
 
     def handle_text(self, text):
         """
         Processes passed raw text.
         """
         logging.info("FileTarget.handle_text: %s", self.filepath + " " + text)
-        return subprocessCall([self.filepath, text])
+        try:
+            return utils.subprocessCall([self.filepath, text])
+        except Exception as e:
+            showError(e)
 
     def handle_url(self, url):
         """
         Processes passed URL.
         """
         logging.info("FileTarget.handle_url: %s", self.filepath + " " + url)
-        return subprocessCall([self.filepath, url])
+        try:
+            return utils.subprocessCall([self.filepath, url])
+        except Exception as e:
+            showError(e)
 
     def mouseDoubleClickEvent(self, event):
-        subprocessCall([self.filepath])
+        try:
+            utils.subprocessCall([self.filepath])
+        except Exception as e:
+            showError(e)
 
 
 class CreateTarget(DropWidget):
@@ -379,10 +371,8 @@ class CreateTarget(DropWidget):
             name,
         )
         if ok and name:
-            if not isfile(context):
-                QMessageBox.critical(
-                    self, "Error", "Target action must be a local file.", QMessageBox.Ok
-                )
+            if not utils.isFile(context):
+                showError("Target action must be a local file.")
                 return 1, "Target action must be a local file"
 
             icon_filepath, _filter = QFileDialog.getOpenFileName(
@@ -421,10 +411,8 @@ class CreateTarget(DropWidget):
             name,
         )
         if ok and name:
-            if not isdir(context):
-                QMessageBox.critical(
-                    self, "Error", "Target should be a local directory.", QMessageBox.Ok
-                )
+            if not utils.isDir(context):
+                showError("Target should be a local directory.")
                 return 1, "Target action must be a local directory"
 
             icon_filepath, _filter = QFileDialog.getOpenFileName(
@@ -599,7 +587,8 @@ class DropFrame(QFrame):
         self.content.reload()
 
 
-def showError(text, details):
+def showError(text, details = None):
+    logging.error(text, details)
     msg = QMessageBox()
     msg.setIcon(QMessageBox.Critical)
 
@@ -613,30 +602,3 @@ def showError(text, details):
     retval = msg.exec_()
     print("value of pressed message box button:", retval)
 
-def getFilePath(context):
-    return unquote(urlparse(context.rstrip()).path)
-
-def isFile(context):
-    filecontext = getFilePath(context)
-    logging.info("isFile: %s? %s", filecontext, str(isfile(filecontext)))
-    return isfile(filecontext)
-
-def isUrl(context):
-    return re_url.match(context):
-
-def subprocessCall(args):
-    cmd = args[0:1]
-    filepath = args[1:2]
-    ret = 0
-
-    try:
-        ret = subprocess.check_call(args)
-    except subprocess.CalledProcessError:
-        showError(
-            "Error executing subprocess call",
-            "The subprocess failed for the following command " + " ".join(args),
-        )
-    except OSError:
-        showError("Could not find executable", cmd)
-
-    return ret, filepath

@@ -8,10 +8,11 @@ author: Djordje Ungar
 website: djordjeungar.com
 """
 import os
-from os.path import isfile, isdir, join, expanduser
+from os.path import join, expanduser
 import sys
+import logging
 
-from droptopus import config, settings, utils, __version__
+from droptopus import config, settings, utils
 from droptopus.widgets import DropFrame, events
 
 from PyQt5.QtGui import QIcon, QPainter, QPixmap
@@ -126,7 +127,7 @@ class AboutDialog(DarkDialog):
         label.setText("Droptopus")
         info_layout.addWidget(label)
         label = QLabel()
-        label.setText("v" + __version__.__version__)
+        label.setText("v" + config.VERSION)
         info_layout.addWidget(label)
         info_layout.addStretch()
         # about text
@@ -210,12 +211,13 @@ class MainWindow(QMainWindow):
             return
 
         self.is_expanded = True
-        self.setAcceptDrops(False)
-        self.content.hide()
+
+        #self.setAcceptDrops(False)
+        #self.content.hide()
         expanded = self.frame.sizeHint()
         self.setMinimumSize(expanded)
         self.content.setCurrentWidget(self.frame)
-        self.content.show()
+        #self.content.show()
         self.resize(expanded)
 
         # on OSX the window will not automatically stay inside the screen like on Linux
@@ -232,6 +234,11 @@ class MainWindow(QMainWindow):
             if window_rect.bottom() > screen_rect.bottom():
                 dy = dy * -1
             self.move(window_rect.left() + dx, window_rect.top() + dy)
+
+        #dnd_events = [QEvent.DragEnter, QEvent.DragLeave, QEvent.DragMove, QEvent.Drop]
+        #if event.type() in dnd_events:
+        #    super(DropFrame, self).event(event)
+
 
     def collapse(self):
         if not self.is_expanded:
@@ -312,10 +319,11 @@ class MainWindow(QMainWindow):
     #    super(MainWindow, self).dragMoveEvent(event)
 
     def dragEnterEvent(self, event):
+        logging.info("DragEnter")
         if not self.is_expanded:
             QTimer.singleShot(200, self.expand)
-        else:
-            super(MainWindow, self).dragEnterEvent(event)
+
+        super(MainWindow, self).dragEnterEvent(event)
 
     def mouseDoubleClickEvent(self, event):
         if self.is_expanded:
