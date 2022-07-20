@@ -208,6 +208,7 @@ class MainWindow(QMainWindow):
     def expand(self):
         if self.is_expanded:
             return
+
         self.is_expanded = True
         self.setAcceptDrops(False)
         self.content.hide()
@@ -322,23 +323,23 @@ class MainWindow(QMainWindow):
         else:
             self.expand()
 
-    def event(self, evt):
-        et = evt.type()
+    def event(self, event):
+        et = event.type()
         if et == events.COLLAPSE_WINDOW:
-            evt.accept()
+            event.accept()
             self.collapse()
             return True
-        if evt.type() == events.RELOAD_WIDGETS:
-            evt.accept()
+        if event.type() == events.RELOAD_WIDGETS:
+            event.accept()
             if self.is_expanded:
                 self.resize(self.sizeHint())
         if et == events.EXPAND_WINDOW:
-            evt.accept()
+            event.accept()
             self.expand()
             return True
         elif et == events.CLOSE_WINDOW:
-            evt.accept()
+            event.accept()
             self.should_confirm_close = True
             self.close()
             return True
-        return super(MainWindow, self).event(evt)
+        return super(MainWindow, self).event(event)

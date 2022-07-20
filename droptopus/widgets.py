@@ -523,10 +523,10 @@ class DropTargetGrid(QWidget):
         self.settings = QSettings()
         self.reload()
 
-    def event(self, evt):
-        if evt.type() == events.RELOAD_WIDGETS:
+    def event(self, event):
+        if event.type() == events.RELOAD_WIDGETS:
             self.reload()
-        return super(DropTargetGrid, self).event(evt)
+        return super(DropTargetGrid, self).event(event)
 
     def reload(self):
         logging.info("Reloading grid items")
