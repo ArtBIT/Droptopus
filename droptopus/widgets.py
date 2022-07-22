@@ -7,7 +7,6 @@ import tempfile
 import logging
 
 from os import rename
-from shutil import copyfile
 from os.path import join, expanduser
 from droptopus import config, settings, utils
 from droptopus.forms import EditItemForm
@@ -262,7 +261,7 @@ class DirTarget(DropWidget):
         """
         dest = join(self.filepath, os.path.basename(filepath))
         logging.info("DirTarget.handle_filepath: %s", dest)
-        copyfile(filepath, dest)
+        utils.safeCopy(filepath, dest)
         return 0, dest
 
     def handle_text(self, text):
@@ -290,7 +289,7 @@ class DirTarget(DropWidget):
             fd.close()
         ext = magic.from_file(tmp.name, mime=True).split("/")[1]
         dest = join(self.filepath, utils.slugify(url.split("/").pop())[:20] + "." + ext)
-        copyfile(tmp.name, dest)
+        utils.safeCopy(tmp.name, dest)
         return 0, dest
 
 

@@ -1,6 +1,8 @@
 import re
 import os
 from os.path import isfile, isdir, join
+import filecmp
+from shutil import copyfile
 import sys
 import re
 import subprocess
@@ -75,7 +77,6 @@ def getFilePath(context):
 
 def isFile(context):
     filecontext = getFilePath(context)
-    logging.info("isFile: %s? %s", filecontext, str(isfile(filecontext)))
     return isfile(filecontext)
 
 def isDir(context):
@@ -98,3 +99,18 @@ def subprocessCall(args):
 
     return ret, filepath
 
+
+def safeCopy(src, dest):
+    i = 1
+    unique_filepath = dest
+    while (os.path.exists(unique_filepath)):
+        if filecmp.cmp(unique_filepath, src):
+            break
+        path = os.path.dirname(unique_filepath)
+        filename = os.path.basename(unique_filepath)
+        filename, extension = os.path.splitext(filename)
+        filename = '_'.join(filename.split('_')[:-1])
+        filename = filename + '_' + str(i) + extension
+        unique_filepath = os.path.join(path, filename)
+        i += 1
+    copyfile(src, unique_filepath)
