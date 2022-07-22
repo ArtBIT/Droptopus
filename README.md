@@ -1,4 +1,3 @@
-[![Build Status][build-status-src]][build-status-href]
 [![GitHub stars][github-stars-src]][github-stars-href]
 [![GitHub license][github-license-src]][github-license-href]
 [![GitHub issues][github-issues-src]][github-issues-href]
@@ -49,8 +48,6 @@ Thanks!
 This project is licensed under the MIT License - see the [LICENSE.md][github-license-href] file for details
 
 [droptopus-logo-src]: https://raw.githubusercontent.com/ArtBIT/Droptopus/master/droptopus/assets/droptopus.png
-[build-status-href]: https://travis-ci.org/ArtBIT/droptopus
-[build-status-src]: https://travis-ci.org/ArtBIT/droptopus.svg
 [github-issues-href]: https://github.com/ArtBIT/droptopus/issues
 [github-issues-src]: https://img.shields.io/github/issues/ArtBIT/droptopus.svg
 [github-license-href]: https://github.com/ArtBIT/Droptopus/blob/master/LICENSE.md
