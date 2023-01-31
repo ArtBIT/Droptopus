@@ -20,7 +20,7 @@ Droptopus melds drag'n'drop with scripts and folders. It allows you to create vi
  `pip3 install droptopus`
 
 # Launch
- `python3 -m droptopus &`
+ `nohup python3 -m droptopus &`
 
 # Example scripts
   Check the [examples][examples-href] directory for some useful drop actions.
