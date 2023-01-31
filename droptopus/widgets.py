@@ -6,18 +6,17 @@ import math
 import tempfile
 import logging
 
-from os import rename
 from os.path import join, expanduser
-from droptopus import config, settings, utils
-from droptopus.forms import EditItemForm
+import config
+import settings
+import utils
+from forms import EditItemForm
 
 from PyQt5.QtCore import QEvent, QSettings, QSize, Qt
 from PyQt5.QtWidgets import (
     QApplication,
     QDialog,
-    QDialogButtonBox,
     QFileDialog,
-    QFormLayout,
     QFrame,
     QGridLayout,
     QHBoxLayout,
@@ -26,7 +25,6 @@ from PyQt5.QtWidgets import (
     QLineEdit,
     QMenu,
     QMessageBox,
-    QPushButton,
     QSizePolicy,
     QStyle,
     QStyleOption,
@@ -67,7 +65,6 @@ class BaseDropWidget(QWidget):
         self.in_context_menu = False
 
         width = 100
-        height = 100
         self.name = conf["name"]
         self.index = conf["index"]
         self.iconpath = conf["icon"]
@@ -167,7 +164,6 @@ class DropWidget(BaseDropWidget):
                 return self.handle_text(context)
         except:
             showError("Could not execute action.")
-
 
     def mouseDoubleClickEvent(self, event):
         utils.osOpen(self.filepath)
@@ -331,7 +327,7 @@ class FileTarget(DropWidget):
 
     def mouseDoubleClickEvent(self, event):
         try:
-            utils.subprocessCall([self.filepath])
+            utils.subprocessCall([self.filepath, ''])
         except Exception as e:
             showError(e)
 

@@ -4,7 +4,6 @@ from os.path import isfile, isdir, join
 import filecmp
 from shutil import copyfile
 import sys
-import re
 import subprocess
 import unicodedata
 from urllib.parse import urlparse, unquote
@@ -20,6 +19,7 @@ re_url = re.compile(
     re.IGNORECASE,
 )
 
+
 def slugify(value):
     """
     Normalizes string, converts to lowercase, removes non-alpha characters,
@@ -33,7 +33,7 @@ def slugify(value):
 
 # Remove all items from the layout
 def clearLayout(layout):
-    if layout != None:
+    if layout is not None:
         while layout.count():
             child = layout.takeAt(0)
             if child.widget() is not None:
@@ -86,8 +86,8 @@ def isUrl(context):
     return re_url.match(context)
 
 def subprocessCall(args):
-    cmd = args[0:1]
-    filepath = args[1:2]
+    cmd = args[0:1][0]
+    filepath = args[1:2][0]
     ret = 0
 
     try:

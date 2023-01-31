@@ -7,37 +7,26 @@ Droptopus Main Window
 author: Djordje Ungar
 website: djordjeungar.com
 """
-import os
-from os.path import join, expanduser
-import sys
+from os.path import join
 import logging
 
-from droptopus import config, settings, utils
-from droptopus.widgets import DropFrame, events
+import config
+from widgets import DropFrame, events
 
 from PyQt5.QtGui import QIcon, QPainter, QPixmap
-from PyQt5.QtCore import QEvent, QSettings, QSize, Qt, QPoint, QTimer
+from PyQt5.QtCore import QSettings, QSize, Qt, QPoint, QTimer
 from PyQt5.QtWidgets import (
-    QApplication,
     QDesktopWidget,
     QDialog,
     QDialogButtonBox,
-    QFileDialog,
-    QFormLayout,
-    QFrame,
-    QGridLayout,
     QHBoxLayout,
     QLabel,
-    QLineEdit,
     QMainWindow,
     QMenu,
     QMessageBox,
-    QPushButton,
-    QSizePolicy,
     QStackedWidget,
     QStyle,
     QStyleOption,
-    QToolButton,
     QVBoxLayout,
     QWidget,
 )
