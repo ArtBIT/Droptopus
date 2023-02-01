@@ -7,10 +7,8 @@ import tempfile
 import logging
 
 from os.path import join, expanduser
-import config
-import settings
-import utils
-from forms import EditItemForm
+from droptopus import config, settings, utils
+from droptopus.forms import EditItemForm
 
 from PyQt5.QtCore import QEvent, QSettings, QSize, Qt
 from PyQt5.QtWidgets import (

@@ -10,8 +10,8 @@ website: djordjeungar.com
 from os.path import join
 import logging
 
-import config
-from widgets import DropFrame, events
+from droptopus import config
+from droptopus.widgets import DropFrame, events
 
 from PyQt5.QtGui import QIcon, QPainter, QPixmap
 from PyQt5.QtCore import QSettings, QSize, Qt, QPoint, QTimer
