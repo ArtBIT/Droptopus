@@ -262,13 +262,18 @@ class DirTarget(DropWidget):
         """
         Processes passed raw text.
         """
-        tmp = next(tempfile._get_candidate_names())
-        tmp = join(self.filepath, tmp) + ".txt"
-        text_file = open(tmp, "w")
-        logging.info("DirTarget.handle_text: %s", text)
-        text_file.write(text.encode("utf8"))
-        text_file.close()
-        return 0, tmp
+        tmp = next(tempfile._get_candidate_names()) + '.txt'
+        tmp = join(self.filepath, tmp)
+        tmp, ok = QFileDialog.getSaveFileName(self, 'Save File', tmp)
+        if not ok or not tmp:
+            return 1, tmp
+
+        with open(tmp, "w") as text_file:
+            logging.info("DirTarget.handle_text: %s", text)
+            text_file.write(text)
+            text_file.close()
+            return 0, tmp
+        return 1, tmp
 
     def handle_url(self, url):
         """
